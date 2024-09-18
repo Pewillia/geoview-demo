@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build --watch --config vite.config.ts",
     "lint": "eslint .",
     "preview": "vite preview",
+    "dev": "vite dev",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+     "start": "react-scripts start"
   },
   "dependencies": {
     "@emotion/react": "^11.13.0",
