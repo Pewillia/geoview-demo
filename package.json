@@ -4,11 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build --watch --config vite.config.ts",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "dev": "vite dev",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
