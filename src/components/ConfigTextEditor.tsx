@@ -73,6 +73,7 @@ export function ConfigTextEditor() {
           ))}
         </div>
         <textarea
+          spellCheck="false"
           id="configGeoview"
           name="configuration"
           value={editorText}

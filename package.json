@@ -9,9 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "dev": "vite dev",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-     "start": "react-scripts start"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "^11.13.0",
