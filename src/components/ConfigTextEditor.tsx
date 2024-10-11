@@ -105,14 +105,6 @@ export function ConfigTextEditor() {
       >
         <Box sx={modalContentStyle}>
           <Box className="config-editor" sx={{ position: 'relative' }}>
-            <Box sx={{ position: 'absolute', top: 5, left: 10 }}>
-              <Button variant="contained" color="primary" size="small" onClick={handleApplyStateToConfigFile}>
-                Apply State to Config File
-              </Button>
-            </Box>
-            <Box sx={{ position: 'absolute', top: 5, right: 10 }}>
-              <CopyToClipboardButton textToCopy={editorText} />
-            </Box>
             <div className="line-numbers">
               {generateArray(numberOfLines).map((lineNumber) => (
                 <span key={lineNumber}></span>
@@ -130,6 +122,12 @@ export function ConfigTextEditor() {
             ></textarea>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+            <Button variant="contained" color="primary" size="small" onClick={handleApplyStateToConfigFile}>
+                Apply State to Config File
+            </Button>
+            <Box >
+              <CopyToClipboardButton textToCopy={editorText} />
+            </Box>
             <Button variant="contained" color="primary" onClick={validateText} disabled={!isEditorTouched}>
               Validate
             </Button>
