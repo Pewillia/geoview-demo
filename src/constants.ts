@@ -89,6 +89,16 @@ export const basemapOptions: ListOptionType[] = [
   { title: 'World Map', value: 'world-map' }
 ];
 
+export const basemapShading: ListOptionType[] = [
+  { title: 'shaded', value: 'true' },
+  { title: 'unshaded', value: 'false' }
+];
+
+export const basemapLabelling: ListOptionType[] = [
+  { title: 'labelled', value: 'true' },
+  { title: 'unlabelled', value: 'false' }
+];
+
 export const mapProjectionOptions: ListOptionType[] = [
   { title: 'LCC', value: 3978 },
   { title: 'Web Mercator', value: 3857 }

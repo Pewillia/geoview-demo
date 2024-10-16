@@ -13,12 +13,19 @@ import { useContext, useState } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import { componentsOptions, footerTabslist, navBarOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions } from '@/constants';
+import {
+  componentsOptions, basemapShading, basemapLabelling, footerTabslist, navBarOptions, appBarOptions,mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions
+} from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
+import { CollectionsBookmarkOutlined } from '@mui/icons-material';
+// below added aas a test ti see f can stop from rerendering
+import { memo,useMemo } from "react";
 
 
 
+//export function MapBuilder() {
+ 
 export function MapBuilder() {
   const cgpvContext = useContext(CGPVContext);
 
@@ -26,7 +33,8 @@ export function MapBuilder() {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
 
-  const { configJson, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
+  const { configJson, handleConfigFileChange,
+    handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
 
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
@@ -43,7 +51,106 @@ export function MapBuilder() {
 
   }
 
+  //losash returns  boolen in json, returns a value that is not a string,oct 15
+  //need string for mapbuilder panel but not to write to file
+
+  //do you get boolean in get priperty for map.basemapOptions.shaded = true
+  //need tur fase button type
+  
+  ////////////////////////////////////////////////////////////////////////////////////////
+  //have to test if map loaded befeor looking for undefined
+  // cycles thru multiple time with  undefined because json isnt loadedd right away
+  
+  //change type of button that accetps tru false for shaed or laeled
+
+  const selectedItem = useMemo(() => (isModified), [
+        isModified
+      ]);
+
+  
+  
   const getProperty = (property: string, defaultValue = undefined) => {
+    console.log(property, "=", _.get(configJson, property));
+     
+    if (property == 'map.basemapOptions.shaded')
+    {
+      console.log(" shaded  1 property=");
+      console.log(" shaded  1 property type=",typeof (_.get(configJson, property)));
+      //if (_.get(configJson, property) == false) { console.log(" shaded000000"); return ('false'); }
+    //  else return ('true');
+    };
+
+  //  if (property == 'map.basemapOptions.labeled')
+    if (property == 'map.basemapOptions.labelled')
+    {
+      console.log(" labeled 2 property=");
+      console.log(" labeled 2 property type=",typeof (_.get(configJson, property)));
+    //  if (_.get(configJson, property) == false) { console.log(" labeled000000"); return ('false'); }
+     //  else return ('true');
+    };
+
+    if (property == 'navBar') {
+
+      console.log(" looking for navbar");
+      if (typeof (_.get(configJson, property)) == 'undefined') {
+
+//have to add to configJson, by returning values only update ui adn not the file
+
+         console.log("nav bar undefined -----------------------");
+        var b = {
+          map: {
+            navbar: ['zoom', "fullscreen", "home", "basemap-select"]
+          }
+        };
+
+        //_.assign(a, b); // extend
+     //   _.assign(configJson, b); // extend
+        //  _.merge(configJson, b); // extend
+
+     //      _.defaultsDeep(configJson, b); // works
+      
+        // updateArrayProperty('navBar', "zoom");
+      //  console.log("map.navbar  zoom e=", (_.get(configJson, "map.navBar.zoom")));
+      //  console.log("map.navbar  zoom e=", (_.get(configJson, "zoom")));
+    
+        return (['zoom', "fullscreen", "home", "basemap-select"]); // will appear in json file written if modify one of these
+      }
+      
+    };
+
+    if (property == 'appBar.tabs.core') {
+         
+      //have to add to configJson, by returning values only update ui adn not the file
+
+      console.log(" looking for appbar");
+      if (typeof (_.get(configJson, property)) == 'undefined') {
+         console.log("appbar undefined -----------------------");
+        var c = {
+          appbar: {
+            tabs: {
+              core:['geolocator']
+            } 
+          }
+        };
+
+        //_.assign(a, b); // extend
+     //   _.assign(configJson, b); // extend
+       //  _.merge(configJson, b); // extend
+      //  _.defaultsDeep(configJson, c); // works
+      
+        // updateArrayProperty('navBar', "zoom");
+      //  console.log("map.navbar  zoom e=", (_.get(configJson, "map.navBar.zoom")));
+      //  console.log("map.navbar  zoom e=", (_.get(configJson, "zoom")));
+    
+        return (['geolocator']);
+      }
+    }
+
+
+    //console.log(" shaded  1 property=",);
+    //  console.log(" shaded  1 property type=",typeof (_.get(configJson, property)));
+     // if (_.get(configJson, property) == false) { console.log(" shaded000000"); return ('false'); }
+   // }//
     return _.get(configJson, property) ?? defaultValue;
   };
 
@@ -137,7 +244,22 @@ export function MapBuilder() {
           onChange={(value) => updateProperty('map.interaction', value)}
           label="Map Interaction" placeholder="" />
 
-
+        
+        <SingleSelectComplete
+          options={basemapShading}
+          defaultValue={Boolean(getProperty('map.basemapOptions.shaded')) ? 'true':'false' }
+          onChange={(value) => {
+            updateProperty('map.basemapOptions.shaded', JSON.parse(value)); 
+            console.log("value of unshaded=",value,"boolean=", JSON.parse(value));
+          }}
+          label="Base Map Shaded" placeholder="" />
+        
+         <SingleSelectComplete
+          options={basemapLabelling}
+          defaultValue={getProperty('map.basemapOptions.labeled')}
+          onChange={(value) => updateProperty('map.basemapOptions.labeled', value)}
+          label="Base Map Labeled" placeholder="" />
+        
         <FormGroup aria-label="position">
           <FormLabel component="legend">Zoom Levels</FormLabel>
 
@@ -221,8 +343,14 @@ export function MapBuilder() {
             options={corePackagesOptions}
             label="CorePackages Options" placeholder="" />
         </FormGroup>
-
+ <div> {selectedItem} </div>
       </FormControl>
     </Box>
+ 
   );
+  
 }
+//export default memo(MapBuilder);
+// export  memo(MapBuilder);
+
+

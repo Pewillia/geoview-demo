@@ -47,18 +47,42 @@ export function ConfigTextEditor() {
   };
 
   const validateText = () => {
+
     const results = validateConfigJson(editorText);
+   // alert(editorText);
+    //alert('JSON results' + results);
     if (results) {
       enqueueSnackbar(results, { variant: 'error' });
+     // alert('JSON is NOT valid'+ { variant: 'error' });
       setIsValidJson(false);
     } else {
       enqueueSnackbar('JSON is valid', { variant: 'success' });
       setIsValidJson(true);
     }
+    
   };
 
+  function validateText2  () {
+
+    const results = validateConfigJson(editorText);
+   // alert(editorText);
+    //alert('JSON results' + results);
+    if (results) {
+      enqueueSnackbar(results, { variant: 'error' });
+     // alert('JSON is NOT valid'+ { variant: 'error' });
+      setIsValidJson(false);
+    } else {
+      enqueueSnackbar('JSON is valid', { variant: 'success' });
+      setIsValidJson(true);
+    }
+    return(results)
+  };
   const createMap = () => {
-    createMapFromConfigText(editorText);
+    // const validJson = validateText2;c
+   // alert(validateText2());
+    if (validateText2() == null) { //alert('calling create map');
+      createMapFromConfigText(editorText);
+    }
   };
 
   function generateArray(n: number) {
@@ -136,10 +160,11 @@ export function ConfigTextEditor() {
               <CopyToClipboardButton textToCopy={editorText} />
               </Box>
              
-            <Button variant="contained" color="primary" onClick={validateText} disabled={!isEditorTouched}>
+            <Button variant="contained" color="primary" onClick={validateText} disabled>
               Validate
             </Button>
-            <Button variant="contained" color="primary" onClick={createMap} disabled={!isValidJson}>
+           
+            <Button variant="contained" color="primary" onClick={createMap}>
               Create Map
             </Button>
           </Box>
