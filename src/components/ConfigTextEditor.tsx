@@ -13,7 +13,7 @@ export function ConfigTextEditor() {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
 
-  const { configJson, validateConfigJson, createMapFromConfigText, handleApplyStateToConfigFile } = cgpvContext;
+  const { configJson, validateConfigJson, createMapFromConfigText } = cgpvContext;
   const { enqueueSnackbar } = useSnackbar();
 
   const textEditorRef = useRef<HTMLTextAreaElement>(null);
@@ -82,7 +82,7 @@ export function ConfigTextEditor() {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '80%', sm: '90%', md: '80%', lg: '75%' },
+    width: { xs: '90%', sm: '90%', md: '80%', lg: '75%' },
     bgcolor: 'background.paper',
     border: '2px solid #ccc',
     borderRadius: 4,
@@ -105,13 +105,9 @@ export function ConfigTextEditor() {
       >
         <Box sx={modalContentStyle}>
           <Box className="config-editor" sx={{ position: 'relative' }}>
-            
-              <Box sx={{ display: 'flex', justifyContent: 'center' ,mt: 2, gap: 2 }}>
-            <Box sx={{ position: 'absolute', top: 5, right: 200 }}>
-             
+           <Box sx={{ position: 'absolute', top: 5, right: 10 }}>
+              <CopyToClipboardButton textToCopy={editorText} />
             </Box>
-           
-              </Box>
             <div className="line-numbers">
               {generateArray(numberOfLines).map((lineNumber) => (
                 <span key={lineNumber}></span>
@@ -128,20 +124,14 @@ export function ConfigTextEditor() {
               spellCheck="false"
             ></textarea>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
-             <Button variant="contained" color="primary" size="small" onClick={handleApplyStateToConfigFile}>
-                Apply State to Config File
-            </Button>
-            <Box >
-              <CopyToClipboardButton textToCopy={editorText} />
-              </Box>
-             
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>    
             <Button variant="contained" color="primary" onClick={validateText} disabled={!isEditorTouched}>
               Validate
             </Button>
             <Button variant="contained" color="primary" onClick={createMap} disabled={!isValidJson}>
               Create Map
             </Button>
+           
           </Box>
         </Box>
       </Modal>
