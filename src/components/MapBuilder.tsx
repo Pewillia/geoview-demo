@@ -26,7 +26,7 @@ export function MapBuilder() {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
 
-  const { configJson, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
+  const { configJson,handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
 
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
@@ -87,6 +87,12 @@ export function MapBuilder() {
         Apply Config Changes
       </Button>
 
+      <Divider sx={{ my: 2 }} />
+      
+      <Button variant="contained" color="primary" size="small" onClick={handleApplyStateToConfigFile}>
+        Apply State to Config File
+      </Button>
+
       <FormControl component="fieldset" sx={{ mt: 4, gap: 3 }}>
 
         <SingleSelectComplete
@@ -96,6 +102,8 @@ export function MapBuilder() {
           onChange={(value) => handleConfigFileChange(value)}
           label="Select Configuration File" placeholder="" />
 
+        
+        
         <FormGroup aria-label="position">
           <FormLabel component="legend">Map Size</FormLabel>
 
