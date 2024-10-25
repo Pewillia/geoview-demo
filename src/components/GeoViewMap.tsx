@@ -70,10 +70,6 @@ function GeoViewMap(props: GeoViewMapProps) {
     }
   };
 
-  const handleBackToHome = () => {
-    navigate('/');
-  };
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -85,15 +81,6 @@ function GeoViewMap(props: GeoViewMapProps) {
         }}
       >
         <AppToolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleBackToHome}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
           <IconButton
             color="inherit"
             aria-label="open drawer"
