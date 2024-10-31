@@ -265,7 +265,7 @@ export function useCgpvHook(): ICgpvHook {
   const validateConfigJson = (json: string): string | null => {
     try {
       const str = json.replaceAll(`'`, `"`);
-      //const configJSON = JSON.parse(str);
+      JSON.parse(str);
       cgpv.api.config.createMapConfig(str, 'en');
     } catch (e: any) {
       return cgpv.api.utilities.core.escapeRegExp(e.message);
