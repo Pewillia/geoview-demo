@@ -1,4 +1,7 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Divider, FormControl, List, ListItem, ListItemButton, ListItemText, TextField, Typography } from '@mui/material';
+import {
+  Accordion, AccordionDetails, AccordionSummary, Box, Divider,
+  FormControl, List, ListItem, ListItemButton, ListItemText, TextField, Typography
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Fragment, useContext, useState } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
@@ -72,7 +75,7 @@ export default function ApiFunctionsTab() {
       <FormControl sx={{}}>
         <TextField
           onChange={handleFilterChange}
-          id="filter-text"  size="small" label="Enter filter text here..." variant="outlined" sx={{bgColor: 'white'}} />
+  id="filter-text"  size="small" label="Enter filter text here..." variant="outlined" sx={{bgColor: 'white'}} />
       </FormControl>
 
       {groupNames.map((groupName, index) => (

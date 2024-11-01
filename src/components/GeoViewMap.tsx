@@ -4,8 +4,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DrawerTabs from './DrawerTabs';
 import { CGPVContext } from '../providers/cgpvContextProvider/CGPVContextProvider';
 import { MapRenderer } from './MapRenderer';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router-dom';
+//import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+//import { useNavigate } from 'react-router-dom';
 import { AppToolbar } from './AppToolbar';
 import { useSearchParams } from "react-router-dom";
 import { DEFAULT_CONFIG_FILE } from '@/constants';
@@ -20,7 +20,7 @@ interface GeoViewMapProps {
 
 function GeoViewMap(props: GeoViewMapProps) {
   const cgpvContext = useContext(CGPVContext);
-  const navigate = useNavigate();
+ // const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
 

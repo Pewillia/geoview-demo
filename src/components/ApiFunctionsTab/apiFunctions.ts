@@ -1,5 +1,7 @@
 import { ApiFuncItem } from "./ApiFunctionsTab";
 
+//# Geoview Config File \n\n ### Map Builder\n\n ### Api Functions \n\n ###  Layer Status \n\n ### Events Log \n\n ### Overview Map  \n\n ### Overview Map "
+
 const apiFuncs: ApiFuncItem[] = [
   {
     group: "General",
@@ -7,14 +9,16 @@ const apiFuncs: ApiFuncItem[] = [
     function: (mapId: string) => {
       cgpv.api.maps[mapId].reloadWithCurrentState();
     }
-  },
+  }
+  ,
   {
     group: "General",
     description: "Reload map",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].reload();
     }
-  },
+  }
+  ,
   {
     group: "General",
     description: "Remove map",
@@ -27,35 +31,42 @@ const apiFuncs: ApiFuncItem[] = [
     description: "Set language to english",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setLanguage('en');
-    }
+    },
+    code: "cgpv.api.maps.Map1.layer.removeLayerUsingPath('geojsonLYR1/geojsonLYR1')"
   },
   {
     group: "Language",
     description: "Set language to french",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setLanguage('fr');
-    }
+    },
+    code: "cgpv.api.maps.Map1.layer.removeLayerUsingPath('geojsonLYR1/geojsonLYR1')"
   },
+
   {
     group: "Theme",
     description: "Set theme to geo.ca",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setTheme('geo.ca');
-    }
-  },
+    },
+        code: `### Api Functions \n\n list of api functionatht  "`
+  }
+  ,
   {
     group: "Theme",
     description: "Set theme to light",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setTheme('light');
-    }
+    },
+        code: `### Api Functions \n\n list of api functionatht  "`
   },
   {
     group: "Theme",
     description: "Set theme to dark",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setTheme('dark');
-    }
+    },
+        code: `### Api Functions \n\n list of api functionatht  "`
   },
 
   {
@@ -63,56 +74,64 @@ const apiFuncs: ApiFuncItem[] = [
     description: "Add info notification",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.addNotificationMessage('this is an info notification');
-    }
+    },
+        code: `### Api Functions \n\n list of api functionatht  "`
   },
   {
     group: "Notifications",
     description: "Add warning notification",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.addNotificationWarning('this is an warning notification');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Notifications",
     description: "Add error notification",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.addNotificationError('this is an error notification');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Notifications",
     description: "Add success notification",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.addNotificationSuccess('this is a success notification title');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Notifications",
     description: "Show info snack-bar",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.showMessage('this is an info snack-bar');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Notifications",
     description: "Show warning snack-bar",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.showWarning('this is an warning snack-bar');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Notifications",
     description: "Show error snack-bar",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.showError('this is an error snack-bar');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Notifications",
     description: "Show success snack-bar",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].notifications.showSuccess('this is a success snack-bar');
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Layers",
@@ -143,15 +162,18 @@ const apiFuncs: ApiFuncItem[] = [
     description: "Set all layers visible",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].layer.setAllLayersVisibility(true);
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Layers",
     description: "Set all layers NOT visible",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].layer.setAllLayersVisibility(false);
-    }
-  },
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
+  }
+  ,
   {
     group: "Map markers",
     description: "Place a marker on the map",
@@ -165,14 +187,16 @@ const apiFuncs: ApiFuncItem[] = [
     description: "Set map project to LCC(3978)",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setProjection(3978);
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "Map projection",
     description: "Set map project to Web Mercator(3857)",
     function: (mapId: string) => {
       cgpv.api.maps[mapId].setProjection(3857);
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   },
   {
     group: "General",
@@ -180,7 +204,8 @@ const apiFuncs: ApiFuncItem[] = [
     secondaryDescription: "This function will log the map config to the console",
     function: (mapId: string) => {
       console.log(cgpv.api.maps[mapId].createMapConfigFromMapState());
-    }
+    },
+      code: "### Api Functions \n\n list of api functionatht  "
   }
 ];
 
