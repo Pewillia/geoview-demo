@@ -13,7 +13,7 @@ export function ConfigTextEditor() {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
 
-  const { configJson, validateConfigJson, createMapFromConfigText, handleApplyStateToConfigFile } = cgpvContext;
+  const { configJson, validateConfigJson, createMapFromConfigText } = cgpvContext;
   const { enqueueSnackbar } = useSnackbar();
 
   const textEditorRef = useRef<HTMLTextAreaElement>(null);
@@ -105,12 +105,7 @@ export function ConfigTextEditor() {
       >
         <Box sx={modalContentStyle}>
           <Box className="config-editor" sx={{ position: 'relative' }}>
-            <Box sx={{ position: 'absolute', top: 5, left: 10 }}>
-              <Button variant="contained" color="primary" size="small" onClick={handleApplyStateToConfigFile}>
-                Apply State to Config File
-              </Button>
-            </Box>
-            <Box sx={{ position: 'absolute', top: 5, right: 10 }}>
+           <Box sx={{ position: 'absolute', top: 5, right: 10 }}>
               <CopyToClipboardButton textToCopy={editorText} />
             </Box>
             <div className="line-numbers">
@@ -129,13 +124,14 @@ export function ConfigTextEditor() {
               spellCheck="false"
             ></textarea>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>    
             <Button variant="contained" color="primary" onClick={validateText} disabled={!isEditorTouched}>
               Validate
             </Button>
             <Button variant="contained" color="primary" onClick={createMap} disabled={!isValidJson}>
               Create Map
             </Button>
+           
           </Box>
         </Box>
       </Modal>
