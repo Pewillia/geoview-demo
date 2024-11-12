@@ -13,7 +13,7 @@ import { useContext, useState } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import { componentsOptions, footerTabslist, navBarOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions } from '@/constants';
+import { componentsOptions, footerTabslist, languageOptions, navBarOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 
@@ -25,11 +25,13 @@ export function MapBuilder() {
   if (!cgpvContext) {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
-
-  const { configJson,handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
+  const { mapId } = cgpvContext;
+  const { configJson, handleApplyStateToConfigFile,handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
 
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
+  const [isEn, setEn] = useState<boolean>(true);
+
 
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = { ...modifiedConfigJson };
@@ -73,8 +75,8 @@ export function MapBuilder() {
     handleConfigJsonChange(modifiedConfigJson);
     setIsModified(false);
   }
-
-  return (
+  
+  return(
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
 
       <ConfigSaveUploadButtons />
@@ -129,7 +131,14 @@ export function MapBuilder() {
           </Box>
         </FormGroup>
 
-        <Divider sx={{ my: 2 }} />
+         <SingleSelectComplete
+          options={languageOptions}
+          defaultValue={(isEn) ? 'English' : 'French'}
+          onChange={(event) => { 
+           (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
+           setEn(!isEn);
+          }}
+        label="Change Language" placeholder="" />
 
         <SingleSelectComplete
           options={themeOptions}
