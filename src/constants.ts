@@ -86,7 +86,8 @@ export const CONFIG_FILES_LIST: ListOptionType[] = [
 export const basemapOptions: ListOptionType[] = [
   { title: 'Transport', value: 'transport' },
   { title: 'Simple', value: 'simple' },
-  { title: 'World Map', value: 'world-map' }
+  { title: 'Open Street Map', value: 'osm' },
+  { title: 'Imagery', value: 'imagery' }
 ];
 
 export const mapProjectionOptions: ListOptionType[] = [

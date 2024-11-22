@@ -13,7 +13,7 @@ import { useContext, useState } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import { componentsOptions, footerTabslist, languageOptions, navBarOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions } from '@/constants';
+import { componentsOptions, footerTabslist, languageOptions, navBarOptions, basemapOptions,appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 
@@ -151,6 +151,13 @@ export function MapBuilder() {
           defaultValue={getProperty('map.interaction')}
           onChange={(value) => updateProperty('map.interaction', value)}
           label="Map Interaction" placeholder="" />
+        
+        <SingleSelectComplete
+          options={basemapOptions}
+          defaultValue={getProperty('map.basemapOptions.basemapId')}
+          onChange={(value) => updateProperty('map.basemapOptions.basemapId', value)}
+          label="Base Map" placeholder="" />
+
         <FormGroup aria-label="position">
           <FormLabel component="legend">Zoom Levels</FormLabel>
 
