@@ -105,7 +105,7 @@ export function ConfigTextEditor() {
       >
         <Box sx={modalContentStyle}>
           <Box className="config-editor" sx={{ position: 'relative' }}>
-           <Box sx={{ position: 'absolute', top: 5, right: 10 }}>
+           <Box sx={{ position: 'fixed', top: 8, right: 34 }}>
               <CopyToClipboardButton textToCopy={editorText} />
             </Box>
             <div className="line-numbers">
