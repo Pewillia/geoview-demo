@@ -90,6 +90,16 @@ export const basemapOptions: ListOptionType[] = [
   { title: 'Imagery', value: 'imagery' }
 ];
 
+export const basemapShading: ListOptionType[] = [
+  { title: 'shaded', value: 'true' },
+  { title: 'unshaded', value: 'false' }
+];
+
+export const basemapLabelling: ListOptionType[] = [
+  { title: 'labelled', value: 'true' },
+  { title: 'unlabelled', value: 'false' }
+];
+
 export const mapProjectionOptions: ListOptionType[] = [
   { title: 'LCC', value: 3978 },
   { title: 'Web Mercator', value: 3857 }
@@ -99,7 +109,6 @@ export const mapInteractionOptions: ListOptionType[] = [
   { title: 'Static', value: 'static' },
   { title: 'Dynamic', value: 'dynamic' }
 ];
-
 
 export const componentsOptions: ListOptionType[] = [
   { title: 'North Arrow', value: 'north-arrow' },

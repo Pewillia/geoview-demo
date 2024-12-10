@@ -13,7 +13,9 @@ import { useContext, useState } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import { componentsOptions, footerTabslist, languageOptions, navBarOptions, basemapOptions,appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions } from '@/constants';
+import {
+  componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions,appBarOptions,mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions
+} from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 
@@ -25,8 +27,9 @@ export function MapBuilder() {
   if (!cgpvContext) {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
+
   const { mapId } = cgpvContext;
-  const { configJson, handleApplyStateToConfigFile,handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
+  const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
 
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
@@ -157,7 +160,22 @@ export function MapBuilder() {
           defaultValue={getProperty('map.basemapOptions.basemapId')}
           onChange={(value) => updateProperty('map.basemapOptions.basemapId', value)}
           label="Base Map" placeholder="" />
-
+        
+        <SingleSelectComplete
+          options={basemapShading}
+          defaultValue={Boolean(getProperty('map.basemapOptions.shaded')) ? 'true':'false' }
+          onChange={(value) => {
+            updateProperty('map.basemapOptions.shaded', JSON.parse(value)); 
+            console.log("value of unshaded=",value,"boolean=", JSON.parse(value));
+          }}
+          label="Base Map Shaded" placeholder="" />
+        
+         <SingleSelectComplete
+          options={basemapLabelling}
+          defaultValue={Boolean(getProperty('map.basemapOptions.labeled')) ? 'true':'false' }
+          onChange={(value) => updateProperty('map.basemapOptions.labeled', JSON.parse(value))}
+          label="Base Map Labeled" placeholder="" />
+        
         <FormGroup aria-label="position">
           <FormLabel component="legend">Zoom Levels</FormLabel>
 
@@ -244,5 +262,7 @@ export function MapBuilder() {
 
       </FormControl>
     </Box>
+ 
   );
+  
 }
