@@ -61,11 +61,7 @@ jobs:
   deploy-public:
     name: Deploy public
     needs: [install-build]
-  
-    if: github.event.pull_request.merged == false 
-         echo pull reqest not merged is ${github.event.pull_request.merged}
-   # if: github.event.pull_request.merged == true && github.head_ref != '' && !github.event.pull_request.draft
-    #     echo pull reqest merged is ${github.event.pull_request.merged}
+    if: github.event.pull_request.merged == true && github.head_ref != '' && !github.event.pull_request.draft
     uses: ./.github/workflows/deploy.yml
     with:
       cache_sha: ${{ github.event.pull_request.head.sha || github.sha }}
