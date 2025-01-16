@@ -1,0 +1,13 @@
+{
+  "sliders": [
+
+    {
+      "layerPaths": ["wmsLYR1-spatiotemporel/RADAR_1KM_RSNO"],
+      "title": "Spatiotemporel - Custom",
+      "description": "Custom description",
+      "locked": true,
+      "reversed": true,
+      "defaultValue": "2024-02-21T14:54:00Z"
+    }
+  ]
+}

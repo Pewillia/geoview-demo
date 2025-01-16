@@ -161,5 +161,33 @@ export const corePackagesOptions: ListOptionType[] = [
   { title: 'Swiper', value: 'swiper' }
 ];
 
+
+export const layerOptions: ListOptionType[] = [
+ // { title: '', value: ' '}
+ // { title: 'Airbourne radiation',value: 'airbourne_radioactivity' }
+  
+];
+
+
+export const CorePackagesConfig: ListOptionType[] = [
+ 
+  { title: 'swiper', value: 'swiper' }
+  
+];
+
+export const SwiperPackageOrientation: ListOptionType[] = [
+  { title: 'Vertical', value: 'vertical' },
+  { title: 'Horizontal', value: 'horizontal' }
+];
+
+export const SwiperPackagekeyboardOffset: ListOptionType[] = [
+  { title: '10', value: '10' },
+  { title: '20', value: '20' }
+];
+
+export const SwiperPackageLayers: ListOptionType[] = [
+ 
+];
+
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));
 

@@ -5,10 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="https://canadian-geospatial-platform.github.io/geoview/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://canadian-geospatial-platform.github.io/geoview/public/cgpv-main.js"></script>
+    <script src="https://canadian-geospatial-platform.github.io/geoview/public/corePackages/geoview-swiper.js"></script>
+  
+    <script >
+      // must be let not a var or call to swiper doesnt work
+      let geoviewPlugins="";
+    </script>
     <title>GeoView Demo Page</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <script src="https://canadian-geospatial-platform.github.io/geoview/public/corePackages/geoview-swiper.js"></script> 
+    <script src="https://canadian-geospatial-platform.github.io/geoview/public/corePackages/geoview-aoi-panel.js"></script> 
+    <script src="https://canadian-geospatial-platform.github.io/geoview/public/corePackages/geoview-basemap-panel.js"></script> 
+   <script src="https://canadian-geospatial-platform.github.io/geoview/public/corePackages/geoview-geochart.js"></script> 
+   <script src="https://canadian-geospatial-platform.github.io/geoview/public/corePackages/geoview-time-slider.js"></script> 
+</body>
 </html>
