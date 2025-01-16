@@ -8,6 +8,9 @@ export const DEFAULT_MAP_WIDTH = '100%';
 export const DEFAULT_MAP_HEIGHT = ((window.innerHeight - (64 + 48 + 10 )).toString() + "px");
 export const DEFAULT_CONFIG_FILE = '01-basemap-LCC-TLS.json';
 export const eventLoopCounter = { current: 0 };
+export const aoiModified = { current: 0 };
+export const aoiDisplay = { current: 0 };
+export const swiperDisplay = { current: 0 };
 
 export const DEFAULT_CONFIG = {
   map: {
@@ -136,6 +139,7 @@ export const footerTabslist: ListOptionType[] = [
 ];
 
 export const appBarOptions: ListOptionType[] = [
+  { title: 'Area-of-Interest', value: 'aoi-panel' },
   { title: 'Legend', value: 'legend' },
   { title: 'Layers', value: 'layers' },
   { title: 'Details', value: 'details' },
@@ -164,22 +168,16 @@ export const languageOptions: ListOptionType[] = [
 ];
 
 export const corePackagesOptions: ListOptionType[] = [
-  { title: 'Area of Interest', value: 'aoi-panel' },
-  { title: 'Custom Basemap Panel', value: 'custom-basemap-panel' },
   { title: 'Time Slider', value: 'time-slider' },
-  { title: 'Custom Time Slider', value: 'custom-time-slider' },
   { title: 'Geochart', value: 'geochart' },
   { title: 'Swiper', value: 'swiper' }
 ];
 
-
-export const layerOptions: ListOptionType[] = [  
+export const layerOptions: ListOptionType[] = [
 ];
-
 
 export const CorePackagesConfig: ListOptionType[] = [
   { title: 'swiper', value: 'swiper' },
-  
 ];
 
 export const SwiperPackageOrientation: ListOptionType[] = [

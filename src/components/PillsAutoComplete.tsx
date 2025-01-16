@@ -5,6 +5,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { TextField } from '@mui/material';
 import { ListOptionType } from '../types';
+//import { String } from 'lodash';
 
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -22,18 +23,12 @@ interface PillsAutoCompleteProps {
 export default function PillsAutoComplete(props: PillsAutoCompleteProps) {
 
   const { options, defaultValue, onChange, label, placeholder } = props;
- 
-    
-  const handleOnChange = (event: React.SyntheticEvent, value: ListOptionType[], reason: any, detail: any) => {
-    const newValue = value.map((v) => v.value); //orignally this
-    
-    onChange?.(newValue, reason, detail.option.value);
-    
-        
-  };
 
+  const handleOnChange = (event: React.SyntheticEvent, value: ListOptionType[], reason: any,detail: any) => {
+      onChange?.(detail.option.value, reason, detail.option.value);
+  };
   
-  return (
+   return (
     <Autocomplete
       multiple
       id="checkboxes-tags-demo"
