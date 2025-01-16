@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
@@ -91,7 +90,9 @@ export function MapBuilder() {
   
   return(
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-       <FormControl component="fieldset" sx={{ mt: 1, gap: 3 }}>
+
+      <FormControl component="fieldset" sx={{ mt: 1, gap: 3 }}>
+      
         <SingleSelectComplete
           options={languageOptions}
           defaultValue={(isEn) ? 'en' : 'fr'}
@@ -99,23 +100,21 @@ export function MapBuilder() {
            (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
            setEn(!isEn);
           }}
-        label="Change Language
-        " placeholder="" /> 
-
+        label="Change Language" placeholder="" />
+       
       <SingleSelectComplete
           options={CONFIG_FILES_LIST}
           defaultValue={configFilePath}
           applyGrouping={true}
           onChange={(value) => handleConfigFileChange(value)}
           label="Select Configuration File" placeholder="" />
-
         
-        </FormControl>
+      </FormControl>
 
       <FormGroup aria-label="position">
-          <FormLabel component="legend">   &nbsp;&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
+          <FormLabel component="legend"sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
 
-          <Box sx={{ display: 'flex', flexDirection: 'row',mt: 1, gap: 4 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 4 }}>
             <FormControl>
             <TextField
                 style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
@@ -197,6 +196,11 @@ export function MapBuilder() {
       </Button>
 
       <FormControl component="fieldset" sx={{ mt: 4, gap: 3 }}>
+
+       
+
+      
+
        
         <SingleSelectComplete
           options={themeOptions}
@@ -273,7 +277,7 @@ export function MapBuilder() {
         <FormGroup aria-label="Navigation Bar Options">
           <FormLabel component="legend">Navigation Bar</FormLabel>
           <PillsAutoComplete
-            defaultValue={getProperty('navBar')}
+            defaultValue={((getProperty('navBar') !== undefined) && (Array.from(getProperty('navBar')!).length) === 0) ? ['zoom'] : ['zoom', 'home', 'basemap-select', 'fullscreen']} 
             onChange={(value) => updateArrayProperty('navBar', value)}
             options={navBarOptions}
             label="Options" placeholder="" />
