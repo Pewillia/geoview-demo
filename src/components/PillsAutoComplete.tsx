@@ -6,6 +6,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { TextField } from '@mui/material';
 import { ListOptionType } from '../types';
 
+
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -13,7 +14,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 interface PillsAutoCompleteProps {
   options: ListOptionType[];
   defaultValue?: any[];
-  onChange?: (value: any[]) => void;
+  onChange?: (value: any[], reason:any, detail:any[]) => void;
   label: string;
   placeholder?: string;
 }
@@ -21,11 +22,16 @@ interface PillsAutoCompleteProps {
 export default function PillsAutoComplete(props: PillsAutoCompleteProps) {
 
   const { options, defaultValue, onChange, label, placeholder } = props;
-
-  const handleOnChange = (event: React.SyntheticEvent, value: ListOptionType[]) => {
-    const newValue = value.map((v) => v.value);
-    onChange?.(newValue);
+ 
+    
+  const handleOnChange = (event: React.SyntheticEvent, value: ListOptionType[], reason: any, detail: any) => {
+    const newValue = value.map((v) => v.value); //orignally this
+    
+    onChange?.(newValue, reason, detail.option.value);
+    
+        
   };
+
   
   return (
     <Autocomplete
@@ -38,7 +44,7 @@ export default function PillsAutoComplete(props: PillsAutoCompleteProps) {
       isOptionEqualToValue={(option, value) => option.value === value.value}
       getOptionLabel={(option) => option.title}
       onChange={handleOnChange}
-      renderOption={(props, option, { selected }) => {
+       renderOption={(props, option, { selected }) => {
         const { key, ...optionProps } = props;
         return (
           <li key={key} {...optionProps}>

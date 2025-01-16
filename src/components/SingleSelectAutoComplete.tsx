@@ -29,7 +29,8 @@ export default function SingleSelectComplete(props: PillsAutoCompleteProps) {
   
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row'}}>
-    <Autocomplete
+      <Autocomplete
+     // multiple
       size="small"
       options={_.orderBy(options, ['group', 'title'], ['asc', 'asc'])}
       disableClearable

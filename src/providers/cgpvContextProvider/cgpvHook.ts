@@ -62,9 +62,9 @@ export function useCgpvHook(): ICgpvHook {
 
   
     // listen to layer added event
-     myMap.layer.onLayerAdded((sender: any, payload: any) => {
-      addEventToList('onLayerAdded', `layer ${payload.layerPath} added`);
-    });
+   //  myMap.layer.onLayerAdded((sender: any, payload: any) => {
+   //   addEventToList('onLayerAdded', `layer ${payload.layerPath} added`);
+    //});
 
     // listen to layer loaded events
      myMap.layer.onLayerLoaded((sender: any, payload: any) => {
@@ -77,9 +77,9 @@ export function useCgpvHook(): ICgpvHook {
     });
 
     // listen to layer removed event
-    myMap.layer.onLayerRemoved((sender: any, payload: any) => {
-      addEventToList('onLayerRemoved', `layer ${payload.layerPath} removed`);
-    });
+  //  myMap.layer.onLayerRemoved((sender: any, payload: any) => {
+   //   addEventToList('onLayerRemoved', `layer ${payload.layerPath} removed`);
+   // });
 
     /*
     // listen to individual layer loaded event
@@ -175,7 +175,7 @@ export function useCgpvHook(): ICgpvHook {
   const createNewMap = (config: string | object, configIsFilePath = false) => {
     if (cgpv.api.hasMapViewer(mapId)) {
       const myMap = cgpv.api.getMapViewer(mapId);
-      myMap?.remove(true);
+      myMap?.delete;
     }
     const newMapId = 'sandboxMap_' + uuidv4();
     // replace div with id 'sandboxMap' with another div

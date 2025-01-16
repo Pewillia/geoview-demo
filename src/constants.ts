@@ -141,7 +141,7 @@ export const appBarOptions: ListOptionType[] = [
   { title: 'Details', value: 'details' },
   { title: 'Data Table', value: 'data-table' },
   { title: 'Geolocator', value: 'geolocator' },
-  { title: 'Export', value: 'export' }
+  { title: 'Export', value: 'export' },
 ];
 
 export const navBarOptions: ListOptionType[] = [
@@ -164,13 +164,36 @@ export const languageOptions: ListOptionType[] = [
 ];
 
 export const corePackagesOptions: ListOptionType[] = [
-  { title: 'Area of Interest', value: 'area-of-interest' },
-  { title: 'Basemap Panel', value: 'basemap-panel' },
+  { title: 'Area of Interest', value: 'aoi-panel' },
   { title: 'Custom Basemap Panel', value: 'custom-basemap-panel' },
   { title: 'Time Slider', value: 'time-slider' },
   { title: 'Custom Time Slider', value: 'custom-time-slider' },
   { title: 'Geochart', value: 'geochart' },
   { title: 'Swiper', value: 'swiper' }
+];
+
+
+export const layerOptions: ListOptionType[] = [  
+];
+
+
+export const CorePackagesConfig: ListOptionType[] = [
+  { title: 'swiper', value: 'swiper' },
+  
+];
+
+export const SwiperPackageOrientation: ListOptionType[] = [
+  { title: 'Vertical', value: 'vertical' },
+  { title: 'Horizontal', value: 'horizontal' }
+];
+
+export const SwiperPackagekeyboardOffset: ListOptionType[] = [
+  { title: '10', value: 10 },
+  { title: '20', value: 20 }
+];
+
+export const SwiperPackageLayers: ListOptionType[] = [
+ 
 ];
 
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));
