@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   DEFAULT_MAP_HEIGHT,
   DEFAULT_MAP_WIDTH,
-  URL_TO_CONFIGS,
+  URL_TO_CONFIGS
 } from '../../constants';
 import _ from 'lodash';
 import { EventListItemType, LegendLayerStatus } from '@/types';
@@ -42,8 +42,8 @@ export function useCgpvHook(): ICgpvHook {
   const [legendLayerStatusList, setLegendLayerStatusList] = useState<LegendLayerStatus[]>([]);
   const [mapWidth, setMapWidth] = useState<string>(DEFAULT_MAP_WIDTH);
   const [mapHeight, setMapHeight] = useState<string>(DEFAULT_MAP_HEIGHT);
-
-
+ 
+  
   const addEventToList = (eventName: string, description: string) => {
     setEventsList((prevList) => {
       return [...prevList, { eventName, description }];
@@ -63,6 +63,7 @@ export function useCgpvHook(): ICgpvHook {
       setLegendLayerStatusList(resultArr);
     });
 
+  
     // listen to layer added event
     cgpv.api.maps[mapId].layer.onLayerAdded((sender: any, payload: any) => {
       addEventToList('onLayerAdded', `layer ${payload.layerPath} added`);
@@ -219,7 +220,6 @@ export function useCgpvHook(): ICgpvHook {
       configTxt = JSON.stringify(res)
     }
 
-    // setting dimensions of the map
     mapElement?.setAttribute('style', `width: ${mapWidth}; min-height: ${mapHeight}; height: ${mapHeight}`);
     mapElement.setAttribute('dataset', `height: ${mapHeight}`);
 
@@ -230,9 +230,11 @@ export function useCgpvHook(): ICgpvHook {
       setConfigFilePath(config as string);
     }
 
-    setConfigJson({ ...configData });
+    setConfigJson({ ...configData }); // added mapHeight to call create map from config, default height
     if (configIsFilePath) {
-      cgpv.api.createMapFromConfig(mapId, `${URL_TO_CONFIGS}${config}`, 800); // just use file directly if its a file path
+     
+     cgpv.api.createMapFromConfig(mapId, `${URL_TO_CONFIGS}${config}`, mapHeight); // just use file directly if its a file path
+    
     } else {
       const toUseTxt = JSON.stringify(configData, null, 4);
       cgpv.api.createMapFromConfig(mapId, toUseTxt);

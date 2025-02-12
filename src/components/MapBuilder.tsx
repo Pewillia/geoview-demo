@@ -9,16 +9,16 @@ import {
   Switch,
   TextField,
 } from '@mui/material';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { useSnackbar } from '@/providers/snackbarProvider';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import {
+import { eventLoopCounter,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions,appBarOptions,mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions
 } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
-
 
 
 export function MapBuilder() {
@@ -29,12 +29,22 @@ export function MapBuilder() {
   }
 
   const { mapId } = cgpvContext;
-  const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
-
+  const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth,mapHeight, setMapWidth, setMapHeight } = cgpvContext;
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
   const [isEn, setEn] = useState<boolean>(true);
+  const [isMapSizeValid, setMapSizeValid] = useState(true);
+  const { enqueueSnackbar } = useSnackbar();
 
+
+  useEffect(() => {
+    if (document.getElementById(mapId) !== null) { 
+      if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
+        setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
+        eventLoopCounter.current = 1;
+      }
+    };
+  }, []);
 
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = { ...modifiedConfigJson };
@@ -45,7 +55,6 @@ export function MapBuilder() {
     }
     setModifiedConfigJson(newConfig);
     setIsModified(true);
-
   }
 
   const getProperty = (property: string, defaultValue = undefined) => {
@@ -80,12 +89,79 @@ export function MapBuilder() {
   }
   
   return(
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+  <FormGroup aria-label="position">
+          <FormLabel component="legend">Map Size in px</FormLabel>
+
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            <FormControl>
+            <TextField
+                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
+      
+                error={!isMapSizeValid}
+                size="small"
+                id="map-width"
+                label="Width"
+                defaultValue={mapWidth.substring(0, mapWidth.length - 2)}  
+                onChange={(event) => {
+                  // setMapSizeValid(true);
+                   if (event.target.value.match(/^\d+$/)) {
+                     setMapSizeValid(true);
+                     setMapWidth(event.target.value + "px");
+                   }
+                   else {
+                      setMapSizeValid(false);
+                  }
+                   setIsModified(true);
+                  }
+                } 
+            />
+            </FormControl>
+          <FormControl>
+            
+            <TextField
+                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
+      
+                error={!isMapSizeValid}
+                size="small"
+                id="map-height"
+                label="Height"
+                defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
+                onChange={(event) => {
+                   if (event.target.value.match(/^\d+$/)) {         
+                     setMapSizeValid(true);
+                     setMapHeight(event.target.value + "px");
+                   }
+                   else {
+                     setMapSizeValid(false);
+                   }
+                    setIsModified(true);
+                  }
+                }
+             />
+                </FormControl>
+          <FormControl>
+          <Button 
+           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '100px', minHeight: '40px' }}
+           onClick={(event) => {
+              (isMapSizeValid )? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
+        }
+          }
+
+        variant="contained" color="primary" size="small">
+        apply size
+        </Button>  
+            </FormControl>
+        </Box>
+            
+      </FormGroup>
+
+      <Divider sx={{ my: 2 }} />
 
       <ConfigSaveUploadButtons />
 
       <Divider sx={{ my: 2 }} />
-
+      
       <Button onClick={handleApplyConfigChanges}
         disabled={!isModified}
         variant="contained" color="primary" size="small">
@@ -107,36 +183,11 @@ export function MapBuilder() {
           onChange={(value) => handleConfigFileChange(value)}
           label="Select Configuration File" placeholder="" />
 
-        <FormGroup aria-label="position">
-          <FormLabel component="legend">Map Size</FormLabel>
-
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-            <FormControl>
-              <TextField
-                size="small"
-                id="map-width"
-                label="Width"
-                defaultValue={mapWidth}
-                onChange={(event) => { setMapWidth(event.target.value); setIsModified(true); }}
-                helperText="e.g. 100% or 500px"
-                variant="outlined" />
-            </FormControl>
-            <FormControl>
-              <TextField
-                size="small"
-                id="map-height"
-                label="Height"
-                defaultValue={mapHeight}
-                onChange={(event) => { setMapHeight(event.target.value); setIsModified(true); }}
-                helperText="e.g. 100% or 500px"
-                variant="outlined" />
-            </FormControl>
-          </Box>
-        </FormGroup>
+      
 
          <SingleSelectComplete
           options={languageOptions}
-          defaultValue={(isEn) ? 'English' : 'French'}
+          defaultValue={(isEn) ? 'en' : 'fr'}
           onChange={(event) => { 
            (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
            setEn(!isEn);
@@ -166,7 +217,6 @@ export function MapBuilder() {
           defaultValue={Boolean(getProperty('map.basemapOptions.shaded')) ? 'true':'false' }
           onChange={(value) => {
             updateProperty('map.basemapOptions.shaded', JSON.parse(value)); 
-            console.log("value of unshaded=",value,"boolean=", JSON.parse(value));
           }}
           label="Base Map Shaded" placeholder="" />
         
