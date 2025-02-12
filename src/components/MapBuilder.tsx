@@ -9,7 +9,7 @@ import {
   Switch,
   TextField,
 } from '@mui/material';
-import { useContext, useState } from 'react';
+import { useContext, useState ,useEffect } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
@@ -24,6 +24,8 @@ import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 export function MapBuilder() {
   const cgpvContext = useContext(CGPVContext);
 
+
+ 
   if (!cgpvContext) {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
@@ -35,7 +37,21 @@ export function MapBuilder() {
   const [isModified, setIsModified] = useState<boolean>(false);
   const [isEn, setEn] = useState<boolean>(true);
 
+  const [winmapWidth, setmapWidth] = useState<String>("1000");
+  const [winmapHeight, setmapHeight] = useState<String>("900");
+ 
+  useEffect(() => {
+    window.dispatchEvent(new Event('resize')); //resize on rerender to update width
+  }, []);
 
+  const handleResize = () => {
+    if (document.getElementById(mapId) !== null) {
+      setmapWidth(window.getComputedStyle(document.getElementById(mapId) as Element).getPropertyValue("width"));
+      setmapHeight(window.innerHeight as unknown as String);
+    }
+  }
+  window.addEventListener('resize', handleResize);
+  
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = { ...modifiedConfigJson };
     if (value === undefined) {
@@ -117,21 +133,30 @@ export function MapBuilder() {
                 id="map-width"
                 label="Width"
                 defaultValue={mapWidth}
-                onChange={(event) => { setMapWidth(event.target.value); setIsModified(true); }}
-                helperText="e.g. 100% or 500px"
+                onChange={(event) => {
+                  setMapWidth(event.target.value);
+                  setIsModified(true);
+                }} 
+                helperText={"e.g. 100% or 1000px / width=" + winmapWidth} 
                 variant="outlined" />
             </FormControl>
+          
             <FormControl>
               <TextField
                 size="small"
                 id="map-height"
                 label="Height"
                 defaultValue={mapHeight}
-                onChange={(event) => { setMapHeight(event.target.value); setIsModified(true); }}
-                helperText="e.g. 100% or 500px"
+                onChange={(event) => {
+                  setMapHeight(event.target.value);
+                  setIsModified(true);
+                }}
+                helperText={"e.g. 100% or 900px / heigth=" + winmapHeight}
                 variant="outlined" />
             </FormControl>
           </Box>
+           
+            
         </FormGroup>
 
          <SingleSelectComplete
@@ -184,7 +209,7 @@ export function MapBuilder() {
               <SingleSelectComplete
                 options={zoomOptions}
                 defaultValue={getProperty('map.viewSettings.minZoom')}
-                onChange={(value) => updateProperty('map.viewSettings.minZoom', value)}
+                onChange={(value) =>  updateProperty('map.viewSettings.minZoom', value) }
                 label="Min Zoom" placeholder="" />
             </FormControl>
             <FormControl>
