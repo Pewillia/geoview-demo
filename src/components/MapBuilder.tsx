@@ -24,6 +24,8 @@ import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 export function MapBuilder() {
   const cgpvContext = useContext(CGPVContext);
 
+
+ 
   if (!cgpvContext) {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
@@ -228,7 +230,7 @@ export function MapBuilder() {
               <SingleSelectComplete
                 options={zoomOptions}
                 defaultValue={getProperty('map.viewSettings.minZoom')}
-                onChange={(value) => updateProperty('map.viewSettings.minZoom', value)}
+                onChange={(value) =>  updateProperty('map.viewSettings.minZoom', value) }
                 label="Min Zoom" placeholder="" />
             </FormControl>
             <FormControl>
