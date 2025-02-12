@@ -49,7 +49,7 @@ export const DEFAULT_CONFIG = {
   theme: 'geo.ca',
 };
 
-export const GEOVIEW_CORE_URL = 'https://canadian-geospatial-platform.github.io/geoview/';
+export const GEOVIEW_CORE_URL = 'https://canadian-geospatial-platform.github.io/geoview/public';
 export const URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/`;
 
 
