@@ -97,7 +97,7 @@ export const CONFIG_FILES_LIST: ListOptionType[] = [
   { value: `29-geopackages.json`, title: 'Layer - Geopackages -', group: 'Packages' },
   { value: `30-package-custom-legend.json`, title: 'Layer - Custom legend -', group: 'Packages' },
   { value: `31-global-settings.json`, title: 'Layer - Global settings -', group: 'Geocore' },
-]
+];
 
 export const basemapOptions: ListOptionType[] = [
   { title: 'Transport', value: 'transport' },
@@ -173,9 +173,6 @@ export const corePackagesOptions: ListOptionType[] = [
   { title: 'Swiper', value: 'swiper' }
 ];
 
-export const layerOptions: ListOptionType[] = [
-];
-
 export const CorePackagesConfig: ListOptionType[] = [
   { title: 'swiper', value: 'swiper' },
 ];
@@ -191,7 +188,9 @@ export const SwiperPackagekeyboardOffset: ListOptionType[] = [
 ];
 
 export const SwiperPackageLayers: ListOptionType[] = [
- 
+];
+
+export const layerOptions: ListOptionType[] = [
 ];
 
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));

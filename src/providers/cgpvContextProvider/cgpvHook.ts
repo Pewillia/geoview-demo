@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-// import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import {
   DEFAULT_MAP_HEIGHT,
   DEFAULT_MAP_WIDTH,
@@ -49,9 +49,8 @@ export function useCgpvHook(): ICgpvHook {
 
   const registerEventListeners = (mapId: string) => {
     // Events=====================================================================================================================
-    console.log('registering events');
-   
-      const myMap = cgpv.api.getMapViewer(mapId);
+      console.log('registering events');
+      const myMap = cgpv.api.getMapViewer(mapId);   
       myMap.layer.legendsLayerSet.onLayerSetUpdated((sender: any, payload: any) => {
       const { resultSet } = payload;
       const resultArr: LegendLayerStatus[] = Object.keys(resultSet).map((key) => {
@@ -60,11 +59,10 @@ export function useCgpvHook(): ICgpvHook {
       setLegendLayerStatusList(resultArr);
     });
 
-  
     // listen to layer added event
    //  myMap.layer.onLayerAdded((sender: any, payload: any) => {
    //   addEventToList('onLayerAdded', `layer ${payload.layerPath} added`);
-    //});
+   // });
 
     // listen to layer loaded events
      myMap.layer.onLayerLoaded((sender: any, payload: any) => {
@@ -77,9 +75,9 @@ export function useCgpvHook(): ICgpvHook {
     });
 
     // listen to layer removed event
-  //  myMap.layer.onLayerRemoved((sender: any, payload: any) => {
-   //   addEventToList('onLayerRemoved', `layer ${payload.layerPath} removed`);
-   // });
+    //   myMap.layer.onLayerRemoved((sender: any, payload: any) => {
+    //     addEventToList('onLayerRemoved', `layer ${payload.layerPath} removed`);
+    //   });
 
     /*
     // listen to individual layer loaded event
@@ -174,7 +172,8 @@ export function useCgpvHook(): ICgpvHook {
   //removes map and creates a new map
   const createNewMap = (config: string | object, configIsFilePath = false) => {
     if (cgpv.api.hasMapViewer(mapId)) {
-      cgpv.api.deleteMapViewer(mapId); 
+      const myMap = cgpv.api.getMapViewer(mapId);
+      myMap?.deleteMapViewer;
     }
     const newMapId = 'sandboxMap_' + uuidv4();
     // replace div with id 'sandboxMap' with another div
@@ -230,9 +229,9 @@ export function useCgpvHook(): ICgpvHook {
 
     setConfigJson({ ...configData }); // added mapHeight to call create map from config, default height
     if (configIsFilePath) {
-     
+
      cgpv.api.createMapFromConfig(mapId, `${URL_TO_CONFIGS}${config}`, mapHeight); // just use file directly if its a file path
-    
+
     } else {
       const toUseTxt = JSON.stringify(configData, null, 4);
       cgpv.api.createMapFromConfig(mapId, toUseTxt);
@@ -245,7 +244,6 @@ export function useCgpvHook(): ICgpvHook {
     cgpv.init(async () => {
       console.log('registering events ');
       //registerEventListeners(mapId);
-
     });
   };
 
