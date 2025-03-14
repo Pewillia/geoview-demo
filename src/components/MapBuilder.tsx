@@ -14,7 +14,7 @@ import { useSnackbar } from '@/providers/snackbarProvider';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import { eventLoopCounter,
+import { eventLoopCounter,  fileLoadOptions,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions,appBarOptions,mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST, corePackagesOptions
 } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
@@ -202,6 +202,8 @@ export function MapBuilder() {
           onChange={(value) => updateProperty('map.interaction', value)}
           label="Map Interaction" placeholder="" />
         
+        <Divider sx={{ my: 1 }}>Base map</Divider>
+        
         <SingleSelectComplete
           options={basemapOptions}
           defaultValue={getProperty('map.basemapOptions.basemapId')}
@@ -221,7 +223,7 @@ export function MapBuilder() {
           defaultValue={Boolean(getProperty('map.basemapOptions.labeled')) ? 'true':'false' }
           onChange={(value) => updateProperty('map.basemapOptions.labeled', JSON.parse(value))}
           label="Base Map Labeled" placeholder="" />
-        
+
         <FormGroup aria-label="position">
           <FormLabel component="legend">Zoom Levels</FormLabel>
 
@@ -250,6 +252,8 @@ export function MapBuilder() {
             onChange={(value) => updateProperty('map.viewSettings.projection', value)}
             label="Map Projection" placeholder="" />
         </FormGroup>
+      
+        <Divider sx={{ my: 1 }} >Map components</Divider>
 
         <FormGroup aria-label="Components">
           <FormLabel component="legend">Components</FormLabel>
@@ -295,6 +299,15 @@ export function MapBuilder() {
             defaultValue={getProperty('appBar.tabs.core')}
             onChange={(value) => updateArrayProperty('appBar.tabs.core', value)}
             options={appBarOptions} label="App-bar Options" placeholder="" />
+        </FormGroup>
+
+        <FormGroup aria-label="File Load">
+          <FormLabel component="legend">File Load</FormLabel>
+          <PillsAutoComplete
+            defaultValue={getProperty('fileLoadOptions')}
+            onChange={(value) => updateArrayProperty('fileLoadOptions', value)}
+            options={fileLoadOptions}
+            label="File Load" placeholder="" />
         </FormGroup>
 
         <FormGroup aria-label="Core Packages Options">
