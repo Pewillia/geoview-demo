@@ -89,8 +89,20 @@ export function MapBuilder() {
   }
   
   return(
-  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-  <FormGroup aria-label="position">
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      
+        <SingleSelectComplete
+          options={languageOptions}
+          defaultValue={(isEn) ? 'en' : 'fr'}
+          onChange={(event) => { 
+           (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
+           setEn(!isEn);
+          }}
+        label="Change Language" placeholder="" />
+      
+       <Divider sx={{ my: 2 }} />
+
+      <FormGroup aria-label="position">
           <FormLabel component="legend">Map Size in px</FormLabel>
 
           <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
@@ -185,15 +197,7 @@ export function MapBuilder() {
 
       
 
-         <SingleSelectComplete
-          options={languageOptions}
-          defaultValue={(isEn) ? 'en' : 'fr'}
-          onChange={(event) => { 
-           (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
-           setEn(!isEn);
-          }}
-        label="Change Language" placeholder="" />
-
+       
         <SingleSelectComplete
           options={themeOptions}
           defaultValue={getProperty('theme')}
