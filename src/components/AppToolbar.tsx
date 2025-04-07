@@ -25,7 +25,7 @@ export const AppToolbar = (props: AppToolbarProps) => {
       {children}
       <img src={`${GEOVIEW_CORE_URL}/img/Logo.png`} alt="GeoView" style={{ height: 40, marginRight: 16 }} />{/* Adjust height and margin as needed */}
       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-        Canadian Geospatial Platform (CGP) - GeoView  # 3
+        Canadian Geospatial Platform (CGP) - GeoView
       </Typography>
       <div>
       <IconButton

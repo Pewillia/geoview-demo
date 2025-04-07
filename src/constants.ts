@@ -4,9 +4,10 @@ import { ListOptionType } from './types';
 export const DEFAULT_DISPLAY_LANGUAGE = 'en';
 export const DEFAULT_DISPLAY_THEME = 'geo.ca';
 export const DEFAULT_DISPLAY_PROJECTION = 3978;
-export const DEFAULT_MAP_WIDTH = '800px';
-export const DEFAULT_MAP_HEIGHT = '900px';
+export const DEFAULT_MAP_WIDTH = '100%';
+export const DEFAULT_MAP_HEIGHT = ((window.innerHeight - (64 + 48 + 10 )).toString() + "px");
 export const DEFAULT_CONFIG_FILE = '01-basemap-LCC-TLS.json';
+export const eventLoopCounter = { current: 0 };
 
 export const DEFAULT_CONFIG = {
   map: {
@@ -161,3 +162,4 @@ export const corePackagesOptions: ListOptionType[] = [
 ];
 
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));
+
