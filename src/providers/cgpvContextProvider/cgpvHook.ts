@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-// import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import {
   DEFAULT_MAP_HEIGHT,
   DEFAULT_MAP_WIDTH,
@@ -177,9 +177,7 @@ export function useCgpvHook(): ICgpvHook {
   //removes map and creates a new map
   const createNewMap = (config: string | object, configIsFilePath = false) => {
     cgpv.api.maps[mapId]?.remove(true);
-     const newMapId = 'sandboxMap';
-
-   // const newMapId = 'sandboxMap_' + uuidv4();
+    const newMapId = 'sandboxMap_' + uuidv4();
 
     // replace div with id 'sandboxMap' with another div
     const mapContainerDiv = document.getElementById('sandboxMapContainer');
