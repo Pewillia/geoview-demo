@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
@@ -89,11 +90,32 @@ export function MapBuilder() {
   }
   
   return(
-  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-  <FormGroup aria-label="position">
-          <FormLabel component="legend">Map Size in px</FormLabel>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+       <FormControl component="fieldset" sx={{ mt: 1, gap: 3 }}>
+        <SingleSelectComplete
+          options={languageOptions}
+          defaultValue={(isEn) ? 'en' : 'fr'}
+          onChange={(event) => { 
+           (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
+           setEn(!isEn);
+          }}
+        label="Change Language
+        " placeholder="" /> 
 
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+      <SingleSelectComplete
+          options={CONFIG_FILES_LIST}
+          defaultValue={configFilePath}
+          applyGrouping={true}
+          onChange={(value) => handleConfigFileChange(value)}
+          label="Select Configuration File" placeholder="" />
+
+        
+        </FormControl>
+
+      <FormGroup aria-label="position">
+          <FormLabel component="legend">   &nbsp;&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
+
+          <Box sx={{ display: 'flex', flexDirection: 'row',mt: 1, gap: 4 }}>
             <FormControl>
             <TextField
                 style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
@@ -175,25 +197,7 @@ export function MapBuilder() {
       </Button>
 
       <FormControl component="fieldset" sx={{ mt: 4, gap: 3 }}>
-
-        <SingleSelectComplete
-          options={CONFIG_FILES_LIST}
-          defaultValue={configFilePath}
-          applyGrouping={true}
-          onChange={(value) => handleConfigFileChange(value)}
-          label="Select Configuration File" placeholder="" />
-
-      
-
-         <SingleSelectComplete
-          options={languageOptions}
-          defaultValue={(isEn) ? 'en' : 'fr'}
-          onChange={(event) => { 
-           (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
-           setEn(!isEn);
-          }}
-        label="Change Language" placeholder="" />
-
+       
         <SingleSelectComplete
           options={themeOptions}
           defaultValue={getProperty('theme')}
