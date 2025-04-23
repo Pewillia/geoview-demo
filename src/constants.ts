@@ -161,8 +161,5 @@ export const corePackagesOptions: ListOptionType[] = [
   { title: 'Swiper', value: 'swiper' }
 ];
 
-
-
-
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));
 
