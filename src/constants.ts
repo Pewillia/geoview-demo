@@ -60,7 +60,7 @@ export const CONFIG_FILES_LIST: ListOptionType[] = [
   { value: `03-projection-WM.json`, title: 'Basemap WM', group: 'Basemaps' },
   { value: `04-restrict-zoom.json`, title: 'Restricted zoom [4, 8]', group: 'Navigator' },
   { value: `05-zoom-layer.json`, title: 'Zoom on layer extent', group: 'Navigator' },
-  { value: `06-basic-footer.json`, title: 'Basic map with footer', group: 'Basic' },
+  { value: `06-basic-footer-layers-tab.json`, title: 'Basic map with footer', group: 'Basic' },
   { value: `07-basic-appbar.json`, title: 'Basic map with app bar', group: 'Basic' },
   { value: `26-package-area-of-interest.json`, title: 'Package Area of interest', group: 'Packages' },
   { value: `08-package-basemap.json`, title: 'Package basemap panel', group: 'Packages' },

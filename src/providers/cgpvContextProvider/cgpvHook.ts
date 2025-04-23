@@ -21,7 +21,6 @@ export interface ICgpvHook {
   mapHeight: string;
   setMapWidth: (width: string) => void;
   setMapHeight: (height: string) => void;
-
   initializeMap: (config: string | object, configIsFilePath?: boolean) => void;
   handleConfigFileChange: (filePath: string | null) => void;
   handleConfigJsonChange: (data: any) => void;
@@ -42,8 +41,6 @@ export function useCgpvHook(): ICgpvHook {
   const [legendLayerStatusList, setLegendLayerStatusList] = useState<LegendLayerStatus[]>([]);
   const [mapWidth, setMapWidth] = useState<string>(DEFAULT_MAP_WIDTH);
   const [mapHeight, setMapHeight] = useState<string>(DEFAULT_MAP_HEIGHT);
- 
-  
   const addEventToList = (eventName: string, description: string) => {
     setEventsList((prevList) => {
       return [...prevList, { eventName, description }];
@@ -53,34 +50,34 @@ export function useCgpvHook(): ICgpvHook {
   const registerEventListeners = (mapId: string) => {
     // Events=====================================================================================================================
     console.log('registering events');
-
-    cgpv.api.maps[mapId].layer.legendsLayerSet.onLayerSetUpdated((sender: any, payload: any) => {
+   
+      const myMap = cgpv.api.getMapViewer(mapId);
+      myMap.layer.legendsLayerSet.onLayerSetUpdated((sender: any, payload: any) => {
       const { resultSet } = payload;
       const resultArr: LegendLayerStatus[] = Object.keys(resultSet).map((key) => {
         return { layerName: resultSet[key]?.layerName, status: resultSet[key]?.layerStatus };
       });
-
       setLegendLayerStatusList(resultArr);
     });
 
   
     // listen to layer added event
-    cgpv.api.maps[mapId].layer.onLayerAdded((sender: any, payload: any) => {
+     myMap.layer.onLayerAdded((sender: any, payload: any) => {
       addEventToList('onLayerAdded', `layer ${payload.layerPath} added`);
     });
 
     // listen to layer loaded events
-    cgpv.api.maps[mapId].layer.onLayerLoaded((sender: any, payload: any) => {
+     myMap.layer.onLayerLoaded((sender: any, payload: any) => {
       addEventToList('onLayerLoaded', `layer ${payload.layerPath} loaded successfully`);
     });
 
     // listen to layer error events
-    cgpv.api.maps[mapId].layer.onLayerError((sender: any, payload: any) => {
+    myMap.layer.onLayerError((sender: any, payload: any) => {
       addEventToList('addLayerError', `layer ${payload.layerPath} has an error`);
     });
 
     // listen to layer removed event
-    cgpv.api.maps[mapId].layer.onLayerRemoved((sender: any, payload: any) => {
+    myMap.layer.onLayerRemoved((sender: any, payload: any) => {
       addEventToList('onLayerRemoved', `layer ${payload.layerPath} removed`);
     });
 
@@ -117,37 +114,37 @@ export function useCgpvHook(): ICgpvHook {
     */
 
     // listen to layer item visibility changed event (any layers)
-    cgpv.api.maps[mapId].layer.onLayerVisibilityToggled((sender: any, payload: any) => {
+    myMap.layer.onLayerVisibilityToggled((sender: any, payload: any) => {
       addEventToList('onLayerVisibilityToggled', `layer ${payload.layerPath} visibility set to ${payload.visibility} - global`);
     });
 
     // listen to layer item visibility changed event (any layers)
-    cgpv.api.maps[mapId].layer.onLayerItemVisibilityToggled((sender: any, payload: any) => {
+    myMap.layer.onLayerItemVisibilityToggled((sender: any, payload: any) => {
       addEventToList('onLayerItemVisibilityToggled', `${payload.itemName} on layer ${payload.layerPath} visibility set to ${payload.visibility} - global`);
     });
 
     // listen to map zoom event
-    cgpv.api.maps[mapId].onMapZoomEnd((sender: any, payload: any) => {
+   myMap.onMapZoomEnd((sender: any, payload: any) => {
       addEventToList('onLayerItemVisibilityToggled', `Zoomed to level ${payload.zoom}`);
     });
 
     // listen to map move event
-    cgpv.api.maps[mapId].onMapMoveEnd((sender: any, payload: any) => {
+    myMap.onMapMoveEnd((sender: any, payload: any) => {
       addEventToList('onLayerItemVisibilityToggled', `Map moved to center latitude ${payload.lnglat[1]} and longitude ${payload.lnglat[0]}`);
     });
 
     // listen to map language changed event
-    cgpv.api.maps[mapId].onMapLanguageChanged((sender: any, payload: any) => {
+    myMap.onMapLanguageChanged((sender: any, payload: any) => {
       addEventToList('onMapLanguageChanged', `Map language changed to ${payload.language}`);
     });
 
     // listen to basemap changed event
-    cgpv.api.maps[mapId].basemap.onBasemapChanged((sender: any, payload: any) => {
+    myMap.basemap.onBasemapChanged((sender: any, payload: any) => {
       addEventToList('onBasemapChanged', `Basemap changed to ${payload.basemap.basemapId}`);
     });
 
     // listen to layer reordered event
-    cgpv.api.maps[mapId].stateApi.onLayersReordered((sender: any, payload: any) => {
+    myMap.stateApi.onLayersReordered((sender: any, payload: any) => {
       addEventToList('onLayersReordered', `Layers reordered to ${payload.orderedLayers.map((layer: any) => layer.layerPath)}`);
     });
 
@@ -176,9 +173,11 @@ export function useCgpvHook(): ICgpvHook {
 
   //removes map and creates a new map
   const createNewMap = (config: string | object, configIsFilePath = false) => {
-    cgpv.api.maps[mapId]?.remove(true);
+    if (cgpv.api.hasMapViewer(mapId)) {
+      const myMap = cgpv.api.getMapViewer(mapId);
+      myMap?.remove(true);
+    }
     const newMapId = 'sandboxMap_' + uuidv4();
-
     // replace div with id 'sandboxMap' with another div
     const mapContainerDiv = document.getElementById('sandboxMapContainer');
     if (!mapContainerDiv) {
@@ -292,7 +291,8 @@ export function useCgpvHook(): ICgpvHook {
   };
 
   const handleApplyStateToConfigFile = () => {
-    const state = cgpv.api.maps[mapId].createMapConfigFromMapState();
+    const myMap = cgpv.api.getMapViewer(mapId);
+    const state = myMap.createMapConfigFromMapState();
     handleConfigJsonChange(state);
   }
 
