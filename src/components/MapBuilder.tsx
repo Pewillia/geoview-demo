@@ -94,8 +94,8 @@ export function MapBuilder() {
         <SingleSelectComplete
           options={languageOptions}
           defaultValue={(isEn) ? 'en' : 'fr'}
-          onChange={(event) => { 
-           (isEn) ? cgpv.api.maps[mapId].setLanguage('fr') : cgpv.api.maps[mapId].setLanguage('en');
+          onChange={(event) => { const myMap = cgpv.api.getMapViewer(mapId);
+           (isEn) ? myMap.setLanguage('fr') : myMap.setLanguage('en');
            setEn(!isEn);
           }}
         label="Change Language" placeholder="" />
