@@ -82,7 +82,11 @@ export const CONFIG_FILES_LIST: ListOptionType[] = [
   { value: `23-csv.json`, title: 'Layer - CSV -', group: 'Layer Types' },
   { value: `24-vector-tile.json`, title: 'Layer - Vector Tile -', group: 'Layer Types' },
   { value: `25-geojson-multi.json`, title: 'Layer - GeoJSON MutiPolygon -', group: 'Layer Types' },
-];
+  { value: `27-geocore-custom.json`, title: 'Layer - Geocore Custom -', group: 'Geocore' },
+  { value: `28-geocore-custom-inline-config.json`, title: 'Layer - Geocore Custom Inline-', group: 'Geocore' },
+  { value: `28-geocore-duplicates.json`, title: 'Layer - Geocore Duplicates -', group: 'Geocore' },
+  { value: `28-geocore.json`, title: 'Layer - Geocore -', group: 'Geocore' },
+]
 
 export const basemapOptions: ListOptionType[] = [
   { title: 'Transport', value: 'transport' },

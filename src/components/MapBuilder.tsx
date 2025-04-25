@@ -95,7 +95,7 @@ export function MapBuilder() {
           options={languageOptions}
           defaultValue={(isEn) ? 'en' : 'fr'}
           onChange={(event) => { const myMap = cgpv.api.getMapViewer(mapId);
-           (isEn) ? myMap.setLanguage('fr') : myMap.setLanguage('en');
+           (isEn) ? myMap.setLanguage('fr', true) : myMap.setLanguage('en', true);
            setEn(!isEn);
           }}
         label="Change Language" placeholder="" />
