@@ -30,7 +30,7 @@ const apiFuncs: ApiFuncItem[] = [
     description: "Set language to english",
     function: (mapId: string) => {
       const myMap = cgpv.api.getMapViewer(mapId);
-      myMap.setLanguage('en');
+      myMap.setLanguage('en', true);
     }
   },
   {
@@ -38,7 +38,7 @@ const apiFuncs: ApiFuncItem[] = [
     description: "Set language to french",
     function: (mapId: string) => {
       const myMap = cgpv.api.getMapViewer(mapId);
-      myMap.setLanguage('fr');
+      myMap.setLanguage('fr', true);
     }
   },
   {
