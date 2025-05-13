@@ -67,8 +67,7 @@ export const CONFIG_FILES_LIST: ListOptionType[] = [
   { value: `06-basic-footer-layers-tab.json`, title: 'Basic map with footer layers tab', group: 'Basic' },
   { value: `07-basic-appbar-data-table.json`, title: 'Basic map with app bar data table', group: 'Basic' },
   { value: `07-basic-appbar-layers-tab.json`, title: 'Basic map with app bar layers tab', group: 'Basic' },
-  { value: `10-package-time-slider.json`, title: 'Package time slider', group: 'Pacskages' },
-  { value: `11-package-time-slider-custom-time-slider.json`, title: 'Package custom time slider', group: 'Packages' },
+  { value: `10-package-time-slider.json`, title: 'Package time slider', group: 'Packages' },
   { value: `11-package-time-slider-custom.json`, title: 'Package custom time slider', group: 'Packages' },
   { value: `12-a-package-swiper-swiper.json`, title: 'Package swiper swiper', group: 'Packages' },
   { value: `12-a-package-swiper.json`, title: 'Package swiper', group: 'Packages' },
@@ -172,10 +171,6 @@ export const corePackagesOptions: ListOptionType[] = [
   { title: 'Custom Time Slider', value: 'custom-time-slider' },
   { title: 'Geochart', value: 'geochart' },
   { title: 'Swiper', value: 'swiper' }
-];
-
-export const fileLoadOptions: ListOptionType[] = [
-  { title: 'Geocore File', value: 'Geocore File' }
 ];
 
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));
