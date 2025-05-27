@@ -9,7 +9,7 @@ import {
   Switch,
   TextField,
 } from '@mui/material';
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { useSnackbar } from '@/providers/snackbarProvider';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
@@ -21,9 +21,9 @@ import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 
 
-export function MapBuilder() {
-  const cgpvContext = useContext(CGPVContext);
 
+export function MapBuilder() {
+  const cgpvContext = useContext(CGPVContext); 
   if (!cgpvContext) {
     throw new Error('CGPVContent must be used within a CGPVProvider');
   }
@@ -35,7 +35,9 @@ export function MapBuilder() {
   const [isEn, setEn] = useState<boolean>(true);
   const [isMapSizeValid, setMapSizeValid] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
-
+  const displayGeocoreFileid = useRef(0); 
+  const [geocoreFileSelected,SetGeocoreFileSelected]= useState<boolean>(true); //toogle geocore file button
+  const [geocoreId,setGecoreId] = useState<string>("");
 
   useEffect(() => {
     if (document.getElementById(mapId) !== null) { 
@@ -87,6 +89,23 @@ export function MapBuilder() {
     handleConfigJsonChange(modifiedConfigJson);
     setIsModified(false);
   }
+
+  const loadGeocoreMap = (GeocoreId: string) => {
+    let geocoreFound = false;
+    let geocoreLayerName = "";
+    const myMap1 = cgpv.api.getMapViewer(mapId);
+    const featureInfoLayerSet = myMap1.layer.mapViewer.layer.featureInfoLayerSet.resultSet;
+    for (var i in featureInfoLayerSet) {  // test if loaded
+      if (featureInfoLayerSet.hasOwnProperty(i)) {
+        if (featureInfoLayerSet[i].layerPath.includes(GeocoreId)) {
+          geocoreLayerName = featureInfoLayerSet[i].layerName;
+          geocoreFound = true;
+        }
+      }
+    }
+    geocoreFound ? enqueueSnackbar('Geocore file loaded ' + geocoreLayerName) : enqueueSnackbar('Geocore ID not found ' + GeocoreId);
+    displayGeocoreFileid.current = 0;
+  }
   
   return(
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -108,7 +127,7 @@ export function MapBuilder() {
       </FormControl>
 
       <FormGroup aria-label="position">
-          <FormLabel component="legend"sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
+        <FormLabel component="legend" sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
           <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 4 }}>
             <FormControl>
             <TextField
@@ -154,7 +173,7 @@ export function MapBuilder() {
           </FormControl>
           <FormControl>
           <Button 
-           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '100px', minHeight: '40px' }}
+           style={{ maxWidth: '130px', maxHeight: '40px', minWidth: '100px', minHeight: '40px' }}
            onClick={(event) => {
               (isMapSizeValid )? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
            }
@@ -186,7 +205,49 @@ export function MapBuilder() {
         Apply State to Config File
       </Button>
 
-      <FormControl component="fieldset" sx={{ mt: 4, gap: 3 }}>
+      <Divider sx={{ my: 2 }} >Geocore Layer</Divider>
+      <FormGroup aria-label="position">
+      <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 1}}>
+      <FormControl> 
+        <TextField
+          style={{ maxWidth: '330px', maxHeight: '30px', minWidth: '330px', minHeight: '30px' }}
+          error={!isMapSizeValid}
+          size="small"
+          id="geocore-id"
+          label="Enter Geocore ID"
+          onChange={(event) => {
+            if (event.target.value.match(/[a-zA-Z0-9_-]{36}$/)) {
+              SetGeocoreFileSelected(true);
+              setGecoreId(event.target.value);
+            }
+            else {
+              enqueueSnackbar("Geocore ID must be 36 characters");
+             }
+            }
+           }
+        />  
+          </FormControl>
+          <FormControl>
+        <Button variant="contained" color="primary" 
+            style={{ maxWidth: '40px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
+          onClick={(event) => {
+            if (geocoreFileSelected){
+              const myMap = cgpv.api.getMapViewer(mapId);
+              myMap.layer.addGeoviewLayerByGeoCoreUUID(geocoreId); 
+              setTimeout(() => loadGeocoreMap(geocoreId), 7000); //wait for file load
+             }
+          }} >
+          ADD
+            </Button>
+
+          </FormControl>
+          
+        </Box>
+        </FormGroup>
+
+      <Divider sx={{ my: 2 }} >Map Configuration</Divider>
+      
+      <FormControl component="fieldset" sx={{ mt: 1, gap: 3 }}>
 
         <SingleSelectComplete
           options={themeOptions}
@@ -199,6 +260,8 @@ export function MapBuilder() {
           defaultValue={getProperty('map.interaction')}
           onChange={(value) => updateProperty('map.interaction', value)}
           label="Map Interaction" placeholder="" />
+        
+        <Divider sx={{ my: 1 }}>Base map</Divider>
         
         <SingleSelectComplete
           options={basemapOptions}
@@ -219,7 +282,7 @@ export function MapBuilder() {
           defaultValue={Boolean(getProperty('map.basemapOptions.labeled')) ? 'true':'false' }
           onChange={(value) => updateProperty('map.basemapOptions.labeled', JSON.parse(value))}
           label="Base Map Labeled" placeholder="" />
-        
+
         <FormGroup aria-label="position">
           <FormLabel component="legend">Zoom Levels</FormLabel>
 
@@ -248,6 +311,8 @@ export function MapBuilder() {
             onChange={(value) => updateProperty('map.viewSettings.projection', value)}
             label="Map Projection" placeholder="" />
         </FormGroup>
+      
+        <Divider sx={{ my: 1 }} >Map components</Divider>
 
         <FormGroup aria-label="Components">
           <FormLabel component="legend">Components</FormLabel>
