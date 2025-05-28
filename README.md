@@ -7,7 +7,12 @@ It also includes the following;
 
 ## [Demo](https://canadian-geospatial-platform.github.io/geoview-demo/)
 
-## STRUCTURE / ARCHITECT
+## Want to know more about GeoView
+
+If you want know more about GeoView or would like to see how it can be customized, take a look at our [GeoView Repository on GitHub]:(https://github.com/Canadian-Geospatial-Platform/geoview). This repository contains all the source code and documentation for the GeoView vizualization project. You can also find a collection of sample configurations, specific demo, documentation, API functions to help you get started quickly.
+
+## Solution
+
 The tech stack for this application includes the following frameworks or technologies;
 * React / TypeScript
 * Material UI
