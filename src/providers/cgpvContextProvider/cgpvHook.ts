@@ -174,8 +174,7 @@ export function useCgpvHook(): ICgpvHook {
   //removes map and creates a new map
   const createNewMap = (config: string | object, configIsFilePath = false) => {
     if (cgpv.api.hasMapViewer(mapId)) {
-      const myMap = cgpv.api.getMapViewer(mapId);
-      myMap?.delete;
+      cgpv.api.deleteMapViewer(mapId); 
     }
     const newMapId = 'sandboxMap_' + uuidv4();
     // replace div with id 'sandboxMap' with another div
