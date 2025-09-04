@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
   DEFAULT_MAP_HEIGHT,
-  DEFAULT_MAP_WIDTH,
-  URL_TO_CONFIGS
+  DEFAULT_MAP_WIDTH
 } from '../../constants';
+import {
+  URL_TO_CONFIGS
+} from '../../components/MapBuilder.tsx';
 import _ from 'lodash';
 import { EventListItemType, LegendLayerStatus } from '@/types';
 

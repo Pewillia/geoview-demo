@@ -21,7 +21,7 @@ import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
 import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
-  corePackagesOptions,aoiDisplay,swiperDisplay
+  corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL
 } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
@@ -29,6 +29,8 @@ import { useSnackbar } from '@/providers/snackbarProvider';
 import { transformExtent } from 'ol/proj';
 import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
+
+export var URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`;
 
 export function MapBuilder() {
   const cgpvContext = useContext(CGPVContext);
@@ -430,7 +432,13 @@ export function MapBuilder() {
           options={CONFIG_FILES_LIST}
           defaultValue={configFilePath}
           applyGrouping={true}
-          onChange={(value) => handleConfigFileChange(value)}
+          onChange={(value) => {
+             URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`
+             for (let i = 0; i < CONFIG_FILES_LIST.length; i++) {
+                if ((value === CONFIG_FILES_LIST[i].value) && ((CONFIG_FILES_LIST[i].group === 'Layer Types') || (CONFIG_FILES_LIST[i].group === 'Geocore')))
+                   URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/layers/`;
+              }
+              handleConfigFileChange(value); }}
           label="Select Configuration File" placeholder="" />
       </FormControl>
 
