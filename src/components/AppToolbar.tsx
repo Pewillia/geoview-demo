@@ -55,6 +55,8 @@ export const AppToolbar = (props: AppToolbarProps) => {
       >
         <MenuItem component={Link} href="https://github.com/Canadian-Geospatial-Platform/geoview-demo" target="_blank"> GitHub</MenuItem>
         <MenuItem component={Link} href="https://canadian-geospatial-platform.github.io/geoview-demo/"  target="_blank"> Demo</MenuItem>
+        <MenuItem component={Link} href="https://github.com/Canadian-Geospatial-Platform/geoview"  target="_blank"> Geoview Github</MenuItem>
+     
       </Menu>
       </div>
     </Toolbar>
