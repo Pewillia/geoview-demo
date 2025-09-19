@@ -11,6 +11,7 @@ export const eventLoopCounter = { current: 0 };
 export const aoiModified = { current: 0 };
 export const aoiDisplay = { current: 0 };
 export const swiperDisplay = { current: 0 };
+export const Language = { english: true };  // save language state
 
 export const DEFAULT_CONFIG = {
   map: {
