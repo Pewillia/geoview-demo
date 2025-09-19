@@ -21,7 +21,7 @@ import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
 import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
-  corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL
+  corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language
 } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
@@ -43,7 +43,7 @@ export function MapBuilder() {
   const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
-  const [isEn, setEn] = useState<boolean>(true);
+  const [isEn, setEn] = useState<boolean>(Language.english);
   const [isMapSizeValid, setMapSizeValid] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const displayGeocoreFileid = useRef(0);
@@ -77,6 +77,13 @@ export function MapBuilder() {
         setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
         eventLoopCounter.current = 1;
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (cgpv.api.hasMapViewer(mapId)) {
+      const myMap1 = cgpv.api.getMapViewer(mapId);
+      (Language.english ) ? myMap1.setLanguage('en', true) : myMap1.setLanguage('fr', true);
     };
   }, []);
 
@@ -425,6 +432,7 @@ export function MapBuilder() {
           defaultValue={(isEn) ? 'en' : 'fr'}
           onChange={(event) => { const myMap = cgpv.api.getMapViewer(mapId);
            (isEn) ? myMap.setLanguage('fr', true) : myMap.setLanguage('en', true);
+           (isEn) ? Language.english = false : Language.english= true;
            setEn(!isEn);
           }}
         label="Change Language" placeholder="" />
