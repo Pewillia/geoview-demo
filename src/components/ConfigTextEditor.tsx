@@ -82,7 +82,7 @@ export function ConfigTextEditor() {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '90%', sm: '90%', md: '80%', lg: '75%' },
+    width: { xs: '90%', sm: '90%', md: '80%', lg: '75%' },                                // oct 2
     bgcolor: 'background.paper',
     border: '2px solid #ccc',
     borderRadius: 4,
@@ -91,7 +91,7 @@ export function ConfigTextEditor() {
     flexDirection: 'column',
     p: 1,
   };
-
+       //,scrollHeight: 9999
   return (
     <>
       <Button component="label" variant="contained" color="primary" size="small" onClick={handleOpenModal} startIcon={<DataObjectIcon />}>
@@ -124,7 +124,7 @@ export function ConfigTextEditor() {
               spellCheck="false"
             ></textarea>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>    
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2}}>    
             <Button variant="contained" color="primary" onClick={validateText} disabled={!isEditorTouched}>
               Validate
             </Button>
