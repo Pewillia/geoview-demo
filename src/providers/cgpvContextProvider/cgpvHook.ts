@@ -27,7 +27,6 @@ export interface ICgpvHook {
   handleConfigFileChange: (filePath: string | null) => void;
   handleConfigJsonChange: (data: any) => void;
   validateConfigJson: (json: string) => string | null;
-  validateMapConfig: (json: string) => string | null;// added oct 2
   createMapFromConfigText: (configText: string) => void;
   updateConfigProperty: (property: string, value: any) => void;
   handleApplyStateToConfigFile: () => void;

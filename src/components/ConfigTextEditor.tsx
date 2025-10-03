@@ -37,7 +37,7 @@ export function ConfigTextEditor() {
 
   useEffect(() => {
     const numOfLines = editorText.split(/\r\n|\r|\n/).length;
-    setNumberOfLines(numOfLines + 5);
+    setNumberOfLines(numOfLines + 100);
   }, [editorText]);
 
   const onTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -82,16 +82,16 @@ export function ConfigTextEditor() {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '90%', sm: '90%', md: '80%', lg: '75%' },                                // oct 2
+    width: { xs: '90%', sm: '90%', md: '80%', lg: '75%' },                              
     bgcolor: 'background.paper',
     border: '2px solid #ccc',
     borderRadius: 4,
     boxShadow: 24,
     display: 'flex', 
     flexDirection: 'column',
-    p: 1,
+    p: 1
   };
-       //,scrollHeight: 9999
+
   return (
     <>
       <Button component="label" variant="contained" color="primary" size="small" onClick={handleOpenModal} startIcon={<DataObjectIcon />}>
@@ -108,17 +108,18 @@ export function ConfigTextEditor() {
            <Box sx={{ position: 'fixed', top: 8, right: 34 }}>
               <CopyToClipboardButton textToCopy={editorText} />
             </Box>
-            <div className="line-numbers">
+            <div  className="line-numbers">
               {generateArray(numberOfLines).map((lineNumber) => (
                 <span key={lineNumber}></span>
               ))}
             </div>
             <textarea
-              id="configGeoview"
+            style= {{height:'99999px'}}
+              field-sizing="content"
               name="configuration"
               value={editorText}
               onChange={onTextareaChange}
-              rows={30}
+              rows={480}
               cols={150}
               ref={textEditorRef}
               spellCheck="false"
@@ -131,7 +132,6 @@ export function ConfigTextEditor() {
             <Button variant="contained" color="primary" onClick={createMap} disabled={!isValidJson}>
               Create Map
             </Button>
-           
           </Box>
         </Box>
       </Modal>
