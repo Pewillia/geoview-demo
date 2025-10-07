@@ -311,7 +311,6 @@ export function useCgpvHook(): ICgpvHook {
     mapHeight,
     setMapWidth,
     setMapHeight,
-
     initializeMap,
     handleConfigFileChange,
     handleConfigJsonChange,
