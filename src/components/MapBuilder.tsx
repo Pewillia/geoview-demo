@@ -26,9 +26,6 @@ import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeybo
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 import { useSnackbar } from '@/providers/snackbarProvider';
-import { transformExtent } from 'ol/proj';
-import proj4 from 'proj4';
-import { register } from 'ol/proj/proj4';
 
 export var URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`;
 
@@ -68,9 +65,9 @@ export function MapBuilder() {
   const [aoiRecord, setAoiRecord] = useState(aoiFuncs);
   const [extentValue, setExtentValue] = useState('');
   const [extentError, setExtentError] = useState(false);
-  const [aoiRecordIndex, setAoiRecordIndex] = useState(0);
+  const [aoiRecordIndex, setAoiRecordIndex] = useState(-1);
   const [itemColor, setItemColor] = useState('#1976d2');
-
+ 
   useEffect(() => {
     if (document.getElementById(mapId) !== null) { 
       if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
@@ -145,50 +142,43 @@ export function MapBuilder() {
     };
 
     if (property === "appBar.tabs.core") {
-      let packages: any = _.get(configJson, property);     
-      for (var i in packages) { 
-
+      let packages: any = _.get(configJson, property);
+      for (var i in packages) {
          if (packages[i] === "aoi-panel") {
+           let maxlayerId: any = _.get(configJson, "corePackagesConfig[0].aoi-panel.aoiList");
            if ((displayLayers.current === 0)) { //works displays aoi list when ony swiper in a file   
             displayLayers.current = 1; //0 if loading from a file on iniial load
             aoiDisplay.current = 2;
-            setAoiChecked(true); 
+            setAoiChecked(true);
+            setAoiRecordIndex(maxlayerId.length-1);
            }
            if (aoiModified.current === 0) { // like useRef, not modified if reloads  
              while (aoiFuncs.length > 0) {
-              aoiFuncs.pop();
+               aoiFuncs.pop();
             }
             let i3 = 0;
-
-            let maxlayerId: any = _.get(configJson, "corePackagesConfig[0].aoi-panel.aoiList");
-           
             if (typeof maxlayerId !== "undefined") {
-
               let maxindex: any = maxlayerId.length;
               for (let i = 0; i < maxindex; i++) {
-
                 let imageUrl = 'corePackagesConfig[0].aoi-panel.aoiList[' + i + '].imageUrl';
                 let title = 'corePackagesConfig[0].aoi-panel.aoiList[' + i + '].aoiTitle';
                 let extent = 'corePackagesConfig[0].aoi-panel.aoiList[' + i + '].extent';
-
                 let aoiImageUrl = (_.get(configJson, imageUrl));
                 let aoiTitle = (_.get(configJson, title));
                 let aoiExtent = (_.get(configJson, extent));
-
                 aoiFuncs.push({ id: 0, title: '', url: "", extent: "", isChecked: false }); // added april 7 increse array
-                aoiFuncs[i3].id = i3;       
+                aoiFuncs[i3].id = i3;
                 aoiFuncs[i3].title = aoiTitle;
                 aoiFuncs[i3].url = aoiImageUrl;
                 aoiFuncs[i3].extent = aoiExtent;
                 aoiFuncs[i3].isChecked = false;
                 i3++;
               } //for loop
-            } // index is not  undefined       
+            } // index is not  undefined    
           } //aoimodified
         };
-      }; 
+      };
     };
-
     return _.get(configJson, property) ?? defaultValue;
   };
 
@@ -279,7 +269,8 @@ export function MapBuilder() {
     setAoiRecord(newList);
     forceUpdate();
     setIsModified(true);
-  }
+    setAoiRecordIndex(aoiRecordIndex + 1); 
+  };
 
   function handleSave() {
     _.set(modifiedConfigJson, "corePackages", "aoi-panel");
@@ -405,23 +396,21 @@ export function MapBuilder() {
 
   const handleExtent = () => {
     const myMap = cgpv.api.getMapViewer(mapId);
-
-    function initMap1(map : any) {
-      // Init extent interactions
-      const myMap = cgpv.api.getMapViewer(mapId); 
-      const extent1 = myMap.initExtentInteractions();
-      extent1.onExtentChanged((sender :any , payload : any) => {
-        proj4.defs("EPSG:3978", "+proj=lcc +lat_0=49 +lon_0=-95 +lat_1=49 +lat_2=77 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
-        register(proj4);
-        proj4.defs("EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs +type=crs");
-        register(proj4);
-        const extentInLatLon = transformExtent(myMap.getView().calculateExtent(), "EPSG:3978", "EPSG:4326");
-        aoiRecord[aoiRecordIndex].extent=extentInLatLon.toString()
-        aoiModified.current = 1;   
-        forceUpdate();
-      });
-    }
-    cgpv.init(initMap1(myMap));
+    let projection = myMap.getProjection();
+    projection = projection.code_ as string;
+    let webmerc = cgpv.api.utilities.projection.getProjectionFromString("EPSG:3857");
+    let lcc = cgpv.api.utilities.projection.getProjectionFromString("EPSG:3978");
+    let latlon = cgpv.api.utilities.projection.getProjectionFromString("EPSG:4326");
+    let extentInLatLon : any = myMap.getView().getViewStateAndExtent().extent;
+    if (projection.includes("EPSG:3857")) 
+      extentInLatLon=cgpv.api.utilities.projection.transformExtentFromProj(extentInLatLon,webmerc,latlon);
+    else if (projection.includes("EPSG:3978"))
+      extentInLatLon=cgpv.api.utilities.projection.transformExtentFromProj(extentInLatLon,lcc,latlon);
+    aoiRecord.filter(function(item) { if (item.isChecked === true){
+    item.extent=extentInLatLon[0].toFixed(5).toString()+","+extentInLatLon[1].toFixed(5).toString()+","+extentInLatLon[2].toFixed(5).toString()+","+extentInLatLon[3].toFixed(5).toString();
+   }});
+   aoiModified.current = 1;
+   forceUpdate();
   }
 
   return(
@@ -900,7 +889,7 @@ export function MapBuilder() {
               variant="contained" color="primary" size="small">
                Save
             </Button>
-            <Tooltip title="zoom to location,press shift and hold, mouse cick to draw extent">
+            <Tooltip title="zoom to location,map window will be extent, click create extent button">
               <Button onClick={handleExtent}
                variant="contained"
                color="primary"
