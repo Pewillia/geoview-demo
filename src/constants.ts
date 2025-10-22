@@ -11,6 +11,8 @@ export const eventLoopCounter = { current: 0 };
 export const aoiModified = { current: 0 };
 export const aoiDisplay = { current: 0 };
 export const swiperDisplay = { current: 0 };
+export const timeSliderDisplay = { current: 0 };
+export const timeSliderModified = { current: 0 };
 export const Language = { english: true };  // save language state
 
 export const DEFAULT_CONFIG = {
@@ -76,27 +78,30 @@ export const CONFIG_FILES_LIST: ListOptionType[] = [
   { value: `16-package-area-of-interest.json`, title: 'Package Area of interest', group: 'Packages' },
   { value: `17-package-custom-legend.json`, title: 'Package - Custom legend -', group: 'Packages' },
   { value: `18-global-settings.json`, title: 'Layer - Global settings -', group: 'Packages' },
-  { value: `01-all-layers.json`, title: 'All Layer Types', group: 'Layer Types' },
-  { value: `02-csv.json`, title: 'Layer - CSV -', group: 'Layer Types' },
-  { value: `03-esri-dynamic.json`, title: 'Layer - ESRI Dynamic -', group: 'Layer Types' },
-  { value: `04-esri-dynamic-projections.json`, title: 'Layer - ESRI Dynamic Projections-', group: 'Layer Types' },
-  { value: `06-esri-feature.json`, title: 'Layer - ESRI Feature-', group: 'Layer Types' },
-  { value: `08-esri-image.json`, title: 'Layer - ESRI Image-', group: 'Layer Types' },
-  { value: `10-geojson.json`, title: 'Layer - GeoJSON -', group: 'Layer Types' },
-  { value: `11-geojson-multi.json`, title: 'Layer - GeoJSON MutiPolygon -', group: 'Layer Types' },
-  { value: `13-geopackages.json`, title: 'Layer - Geopackages -', group: 'Layer Types' },
-  { value: `14-ogc-feature-api.json`, title: 'Layer - OGC Feature API -', group: 'Layer Types' },
-  { value: `16-shapefile.json`, title: 'Layer - Shapefile -', group: 'Layer Types' },
-  { value: `17-static-image.json`, title: 'Layer - Static Image -', group: 'Layer Types' },
-  { value: `19-vector-tile.json`, title: 'Layer - Vector Tile -', group: 'Layer Types' },
-  { value: `20-wfs.json`, title: 'Layer - WFS -', group: 'Layer Types' },
-  { value: `22-wkb.json`, title: 'Layer - WKB -', group: 'Layer Types' },
-  { value: `23-wms-layer.json`, title: 'Layer - WMS -', group: 'Layer Types' },
-  { value: `25-xyz-tile.json`, title: 'Layer - XYZ Tile -', group: 'Layer Types' },
-  { value: `27-geocore.json`, title: 'Layer - Geocore -', group: 'Geocore' },
-  { value: `28-geocore-custom.json`, title: 'Layer - Geocore Custom-', group: 'Geocore' },
-  { value: `29-geocore-custom-inline-config.json`, title: 'Layer - Geocore Custom Inline-', group: 'Geocore' },
-  { value: `30-geocore-duplicates.json`, title: 'Layer - Geocore Duplicates-', group: 'Geocore' }
+  { value: `all-layers.json`, title: 'All Layer Types', group: 'Layer Types' },
+  { value: `csv.json`, title: 'Layer - CSV -', group: 'Layer Types' },
+  { value: `esri-dynamic.json`, title: 'Layer - ESRI Dynamic -', group: 'Layer Types' },
+  { value: `esri-dynamic-group-of-groups.json`, title: 'Layer - ESRI Dynamic Groups-', group: 'Layer Types' },
+  { value: `esri-dynamic-projections.json`, title: 'Layer - ESRI Dynamic Projections-', group: 'Layer Types' },
+  { value: `esri-feature.json`, title: 'Layer - ESRI Feature-', group: 'Layer Types' },
+  { value: `esri-image.json`, title: 'Layer - ESRI Image-', group: 'Layer Types' },
+  { value: `geocore-custom.json`, title: 'Layer - Geocore Custom-', group: 'Geocore' },
+  { value: `geocore-custom-inline-config.json`, title: 'Layer - Geocore Custom Inline-', group: 'Geocore' },
+  { value: `geocore-duplicates.json`, title: 'Layer - Geocore Duplicates-', group: 'Geocore' },
+  { value: `geocore.json`, title: 'Layer - Geocore -', group: 'Geocore' },
+  { value: `geojson.json`, title: 'Layer - GeoJSON -', group: 'Layer Types' },
+  { value: `geojson-multi.json`, title: 'Layer - GeoJSON MutiPolygon -', group: 'Layer Types' },
+  { value: `geopackages.json`, title: 'Layer - Geopackages -', group: 'Layer Types' },
+  { value: `kml.json`, title: 'Layer - Kml -', group: 'Layer Types' },
+  { value: `ogc-feature-api.json`, title: 'Layer - OGC Feature API -', group: 'Layer Types' },
+  { value: `shapefile`, title: 'Layer - Shapefile -', group: 'Layer Types' },
+  { value: `static-image.json`, title: 'Layer - Static Image -', group: 'Layer Types' },
+  { value: `vector-tile.json`, title: 'Layer - Vector Tile -', group: 'Layer Types' },
+  { value: `wfs.json`, title: 'Layer - WFS -', group: 'Layer Types' },
+  { value: `wkb.json`, title: 'Layer - WKB -', group: 'Layer Types' },
+  { value: `wms-layer-vpn.json`, title: 'Layer - WMS VPN-', group: 'Layer Types' },
+  { value: `wms-layer.json`, title: 'Layer - WMS -', group: 'Layer Types' },
+  { value: `xyz-tile.json`, title: 'Layer - XYZ Tile -', group: 'Layer Types' }
 ]
 
 export const basemapOptions: ListOptionType[] = [
@@ -191,6 +196,90 @@ export const SwiperPackageLayers: ListOptionType[] = [
 ];
 
 export const layerOptions: ListOptionType[] = [
+];
+
+export const timeSliderLocked: ListOptionType[] = [
+  { title: 'unlocked', value: 'false' },
+  { title: 'locked', value: 'true' }
+];
+
+export const sliderLocked: ListOptionType[] = [
+  { title: 'unlocked', value: 'false' },
+  { title: 'locked', value: 'true' }
+];
+
+export const timeSliderFiltering: ListOptionType[] = [
+  { title: 'true', value: "true" },
+  { title: 'false', value: "false" }
+];
+
+export const SliderReversed: ListOptionType[] = [
+  { title: 'reversed', value: "true" },
+  { title: 'unreversed', value: "false" }
+];
+
+export const timeSliderDefaultValue: ListOptionType[] = [
+  { title: 'true', value: "true" },
+  { title: 'false', value: "false" }
+];
+
+export const timeSliderLayerPath: ListOptionType[] = [
+];
+
+export const timeSliderTemporaralDimensionField: ListOptionType[] = [
+  { title: 'Field', value: "time_slider_date" },
+];
+
+export const timeSliderTemporaralDimensionDefault: ListOptionType[] = [
+  { title: 'start', value: "time_slider_date" },
+  { title: 'End', value: "time_slider_date" },
+];
+
+export const timeSliderTemporaralDimensionUnitSymbol: ListOptionType[] = [
+  { title: 'start', value: "time_slider_date" },
+];
+
+export const timeSliderTemporalDimensionRange: ListOptionType[] = [
+  { title: 'start', value: "time_slider_date" },
+];
+
+export const timeSliderTemporalDimensionNearestValue: ListOptionType[] = [
+  { title: 'absolute', value: "absolute" },
+  { title: 'discrete', value: "discrete" }
+];
+
+export const timeSliderTemporalDimensionSingleHandle: ListOptionType[] = [
+  { title: 'true', value: "true" },
+  { title: 'false', value: "false" }
+];
+
+export const timeSliderDatePrecision: ListOptionType[] = [
+  { title: 'day', value: "day" },
+  { title: 'year', value: "year"},
+  { title: 'month', value: "month" },
+]
+
+export const timeSliderTemporalDimensionDisplayTimePrecision: ListOptionType[] = [
+  { title: ' ', value: "" },
+  { title: 'hour', value: "hour" },
+  { title: 'minute', value: "minute" },
+  { title: 'second', value: "second" }
+];
+
+export const timeSliderTemporalDimensionMinRange: ListOptionType[] = [
+];
+
+export const timeSliderDelay: ListOptionType[] = [
+  { title: '500', value: 500},
+  { title: '750', value: 750},
+  { title: '1000', value: 1000},
+  { title: '1500', value: 1500},
+  { title: '2000', value: 2000},
+  { title: '3000', value: 3000},
+  { title: '5000', value: 5000}
+];
+
+export const timeSliderLayers: ListOptionType[] = [ 
 ];
 
 export const zoomOptions: ListOptionType[] = _.range(0, 51).map((value) => ({ title: value.toString(), value }));

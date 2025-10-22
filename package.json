@@ -16,6 +16,8 @@
     "@mui/icons-material": "^5.16.7",
     "@mui/lab": "^5.0.0-alpha.173",
     "@mui/material": "^5.16.7",
+    "@mui/x-date-pickers": "8.9.0",
+    "dayjs": "1.11.13",
     "@types/lodash": "^4.17.7",
     "@types/react-dom": "^18.3.0",
     "lodash": "^4.17.21",

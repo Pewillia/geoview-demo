@@ -3,6 +3,9 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { Box, TextField } from '@mui/material';
 import { ListOptionType } from '../types';
 import _ from 'lodash';
+import { useReducer,useEffect} from 'react';
+
+import { timeSliderFuncs} from "./MapBuilder.tsx"
 
 
 interface PillsAutoCompleteProps {
@@ -12,11 +15,22 @@ interface PillsAutoCompleteProps {
   label: string;
   placeholder?: string;
   applyGrouping?: boolean;
+  disable?:boolean;
+  component?:number;
 }
 
 export default function SingleSelectComplete(props: PillsAutoCompleteProps) {
 
-  const { options, defaultValue, onChange, label, placeholder,applyGrouping = false } = props;
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
+
+
+    useEffect(() => {
+      console.log("in autocpomplete seingleseclte")
+      forceUpdate();
+     
+    }, [timeSliderFuncs[0]]);
+
+  const { options, defaultValue, onChange, label, placeholder,applyGrouping = false ,disable,component} = props;
 
   const handleOnChange = (event: React.SyntheticEvent, newValue: ListOptionType| null) => {
     if(newValue === null) {
@@ -31,6 +45,7 @@ export default function SingleSelectComplete(props: PillsAutoCompleteProps) {
     <Box sx={{ display: 'flex', flexDirection: 'row'}}>
       <Autocomplete
      // multiple
+      key={component}
       size="small"
       options={_.orderBy(options, ['group', 'title'], ['asc', 'asc'])}
       disableClearable
@@ -39,9 +54,13 @@ export default function SingleSelectComplete(props: PillsAutoCompleteProps) {
       getOptionLabel={(option) => option.title}
       groupBy={applyGrouping ? ((option) => option.group ?? 'Others') : undefined}
       onChange={handleOnChange}
-      style={{ width: '100%' }}
+   //   style={{ width: '100%' }}
+       style={{
+          display: 'flex', flexDirection: 'column', maxHeight: '40px',
+          minWidth: '320px', minHeight: '40px' 
+      }}
       renderInput={(params) => (
-        <TextField {...params} label={label} placeholder={placeholder} />
+        <TextField {...params} label={label} placeholder={placeholder} disabled = {disable}  />
       )}
     />
     </Box>

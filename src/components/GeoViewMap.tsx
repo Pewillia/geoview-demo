@@ -66,9 +66,9 @@ function GeoViewMap(props: GeoViewMapProps) {
       setMobileOpen(!mobileOpen);
     }
   };
-
+// added resize and overflow nov 6
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex'}}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -89,7 +89,7 @@ function GeoViewMap(props: GeoViewMapProps) {
           </IconButton>
         </AppToolbar>
       </AppBar>
-      <Box component="nav" sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }} aria-label="settings panel">
+      <Box component="nav" sx={{width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}   aria-label="settings panel">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Drawer
           variant="temporary"

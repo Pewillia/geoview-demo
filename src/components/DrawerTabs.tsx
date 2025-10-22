@@ -26,14 +26,12 @@ export default function DrawerTabs() {
     setSelectedTab(newValue);
   };
 
-
   if (isLoading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
       <CircularProgress />
     </Box>;
   }
-
-
+                           // overflow: "auto" , causes 2 scoll bars to appear
   return (
     <Box sx={{ width: '100%', typography: 'body1', minHeight: {md: '100vh'} }}>
       <TabContext value={selectedTab}>
