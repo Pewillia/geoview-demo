@@ -85,3 +85,8 @@ body ::-webkit-scrollbar {
   padding: 0;
   margin: 0;
 }
+
+.scrollable-panel { 
+  overflow-y: auto; /*  added for resct-resiable-pabels Adds a vertical scrollbar when content overflows */
+  /* or overflow: auto; for both horizontal and vertical */
+}

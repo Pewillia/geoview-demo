@@ -4,7 +4,7 @@ import { ListOptionType } from './types';
 export const DEFAULT_DISPLAY_LANGUAGE = 'en';
 export const DEFAULT_DISPLAY_THEME = 'geo.ca';
 export const DEFAULT_DISPLAY_PROJECTION = 3978;
-export const DEFAULT_MAP_WIDTH = '100%';
+export const DEFAULT_MAP_WIDTH = '1074px';
 export const DEFAULT_MAP_HEIGHT = ((window.innerHeight - (64 + 48 + 10 )).toString() + "px");
 export const DEFAULT_CONFIG_FILE = '01-basemap-LCC-TLS.json';
 export const eventLoopCounter = { current: 0 };
@@ -12,6 +12,13 @@ export const aoiModified = { current: 0 };
 export const aoiDisplay = { current: 0 };
 export const swiperDisplay = { current: 0 };
 export const Language = { english: true };  // save language state
+export const panelSize= {current: 70};
+export const DEFAULT_LEFT_PANEL_MIN_WIDTH =  29 ;
+export const DEFAULT_LEFT_PANEL_MAX_WIDTH =  50 ;
+export const DEFAULT_LEFT_PANEL_WIDTH =  29 ;
+export const DEFAULT_RIGHT_PANEL_MIN_WIDTH =  50 ;
+export const DEFAULT_RIGHT_PANEL_MAX_WIDTH =  100 ;
+export const DEFAULT_RIGHT_PANEL_WIDTH =  71 ;
 
 export const DEFAULT_CONFIG = {
   map: {

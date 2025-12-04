@@ -11,7 +11,6 @@ import { EventsLog } from './EventsLog';
 import { LegendLayerStatusTable } from './LegendLayerStatusTable';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 
-
 export default function DrawerTabs() {
   const cgpvContext = useContext(CGPVContext);
 
@@ -33,9 +32,8 @@ export default function DrawerTabs() {
     </Box>;
   }
 
-
   return (
-    <Box sx={{ width: '100%', typography: 'body1', minHeight: {md: '100vh'} }}>
+
       <TabContext value={selectedTab}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <TabList onChange={handleTabChange} aria-label="handling tabs change" variant="scrollable" scrollButtons="auto">
@@ -58,6 +56,6 @@ export default function DrawerTabs() {
           <EventsLog />
         </TabPanel>
       </TabContext>
-    </Box>
+   
   );
 }
