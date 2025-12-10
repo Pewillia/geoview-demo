@@ -1,31 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Box,
-  Button,
-  Divider,
-  FormControl,
-  FormGroup,
-  FormLabel,
-  Switch,
-  TextField,
-  Tooltip,
-  List, ListItem,
-  Stack
-} from '@mui/material';
+import {Box, Button, Divider, FormControl, FormGroup, FormLabel, Switch, Tabs, Tab,TextField,Tooltip, List, ListItem, ListItemText, Stack } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useContext, useState, useReducer, useRef,useEffect, 
-} from 'react';
+import { useContext, useState, useReducer, useRef,useEffect, } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import {aoiModified,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,
+import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,currentTab,appBarOptions2,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
-  corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language
-} from '@/constants';
+ aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language,footerTabsList2, navBarOptions2, corePackagesOptions} from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 import { useSnackbar } from '@/providers/snackbarProvider';
+import React from 'react';
 
 export var URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`;
 
@@ -39,7 +26,7 @@ export function MapBuilder() {
   const { mapId } = cgpvContext;
   const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, 
     handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
-  const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
+  const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(structuredClone(configJson)); //changes reflected in configJson if no clone
   const [isModified, setIsModified] = useState<boolean>(false);
   const [isEn, setEn] = useState<boolean>(Language.english);
   const [isMapSizeValid, setMapSizeValid] = useState(true);
@@ -62,6 +49,7 @@ export function MapBuilder() {
     isChecked: boolean;
   }
 
+  const [tabValue, setTabValue] = React.useState(0); //tab value
   const aoiFuncs: AoiFuncItem[] = []
   const [aoiRecord, setAoiRecord] = useState(aoiFuncs);
   const [extentValue, setExtentValue] = useState('');
@@ -71,28 +59,45 @@ export function MapBuilder() {
   const mapWidth1= useRef<HTMLTextAreaElement>(null);
   const refAppply= useRef<HTMLButtonElement>(null);
 
+  const { legendLayerStatusList } = cgpvContext;
+
+  useEffect(() => {
+    setTabValue(currentTab.current);  // set tab value to last tab used in case of a save state reinitialization
+    if (document.getElementById(mapId) !== null) { 
+      if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
+         setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
+       }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (swiperDisplay.current === 1) {
+       setSwiperChecked(true);
+       forceUpdate();
+    }
+  }, [swiperDisplay.current]);
+
+  useEffect(() => {
+     if (aoiDisplay.current === 2) {
+        setAoiChecked(true); 
+        forceUpdate();
+     }
+  }, [aoiDisplay.current]);
+
   useEffect(() => {
     if (cgpv.api.hasMapViewer(mapId)) {
-      const myMap1 = cgpv.api.getMapViewer(mapId);
+      const myMap1 = cgpv.api.getMapViewer(mapId); //added jan 9 sue to non displau
       (Language.english ) ? myMap1.setLanguage('en', true) : myMap1.setLanguage('fr', true);
     };
   }, []);
 
-  const handleChangeAoi = () => {
+  const handleChangeAoi = () => {  setAoiRecord(aoiFuncs);
     setAoiChecked((prev) => !prev);
   };
 
   const handleChangeSwiper = () => {
     setSwiperChecked((prev) => !prev);
   };
-
-  const calculateMapWidth = () => {
-    if (mapWidth1.current) {  // update width text field,mapWidth is a hook and is a update delay
-       panelSize.current.toString().includes('.') ?
-       mapWidth1.current!.value =panelSize.current.toString().substring(0, (panelSize.current.toString().indexOf('.')))
-         : mapWidth1.current!.value =(panelSize.current.toString()+"px");
-    }
-  }
 
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = {...modifiedConfigJson};
@@ -129,34 +134,33 @@ export function MapBuilder() {
   }
 
   const getProperty = (property: string, defaultValue = undefined) => {
+    
     if (property === "corePackages") {
       let packages: any = _.get(configJson, property);
       for (var i in packages) {
         if (packages[i] === "swiper") {
+          displayLayers.current = 1;
+          swiperDisplay.current = 1;
           setTimeout(createLayerList, 5000);
-          if (displayLayers.current === 0) {  // first time thru on reload
-            displayLayers.current = 1;
-            swiperDisplay.current = 1;
-            setSwiperChecked(true);
-          };
         };
       };
     };
 
-    if (property === "appBar.tabs.core") {
+   if (property === "appBar.tabs.core") { //changed works with corePackages
+   
       let packages: any = _.get(configJson, property);
       for (var i in packages) {
          if (packages[i] === "aoi-panel") {
+       
            let maxlayerId: any = _.get(configJson, "corePackagesConfig[0].aoi-panel.aoiList");
            if ((displayLayers.current === 0)) { //works displays aoi list when ony swiper in a file   
-            displayLayers.current = 1; //0 if loading from a file on iniial load
-            aoiDisplay.current = 2;
-            setAoiChecked(true);
-            setAoiRecordIndex(maxlayerId.length-1);
+             displayLayers.current = 1; //0 if loading from a file on iniial load
+             aoiDisplay.current = 2;
+             setAoiRecordIndex(maxlayerId.length-1);
            }
            if (aoiModified.current === 0) { // like useRef, not modified if reloads  
-             while (aoiFuncs.length > 0) {
-               aoiFuncs.pop();
+             while (aoiRecord.length > 0) {
+               aoiRecord.pop();
             }
             let i3 = 0;
             if (typeof maxlayerId !== "undefined") {
@@ -168,12 +172,12 @@ export function MapBuilder() {
                 let aoiImageUrl = (_.get(configJson, imageUrl));
                 let aoiTitle = (_.get(configJson, title));
                 let aoiExtent = (_.get(configJson, extent));
-                aoiFuncs.push({ id: 0, title: '', url: "", extent: "", isChecked: false }); // added april 7 increse array
-                aoiFuncs[i3].id = i3;
-                aoiFuncs[i3].title = aoiTitle;
-                aoiFuncs[i3].url = aoiImageUrl;
-                aoiFuncs[i3].extent = aoiExtent;
-                aoiFuncs[i3].isChecked = false;
+                aoiRecord.push({ id: 0, title: '', url: "", extent: "", isChecked: false }); // added april 7 increse array
+                aoiRecord[i3].id = i3;
+                aoiRecord[i3].title = aoiTitle;
+                aoiRecord[i3].url = aoiImageUrl;
+                aoiRecord[i3].extent = aoiExtent;
+                aoiRecord[i3].isChecked = false;
                 i3++;
               } //for loop
             } // index is not  undefined    
@@ -181,7 +185,7 @@ export function MapBuilder() {
         };
       };
     };
-    return _.get(configJson, property) ?? defaultValue;
+    return _.get(modifiedConfigJson, property) ?? defaultValue;  //cchanged to modfiiedConfigJson for persistant change
   };
 
   const updateProperty = (property: string, value: any) => {
@@ -244,7 +248,7 @@ export function MapBuilder() {
 
     if ((selectedvalue === "swiper") && (reason !== "removeOption"))  {
       _.set(modifiedConfigJson, "corePackages", ["swiper"]);
-      handleApplyConfigChanges(); 
+      handleApplyConfigChanges();  // feb 16
     };
 
     if ((selectedvalue === "aoi-panel") && (reason !== "removeOption")) {   
@@ -315,7 +319,7 @@ export function MapBuilder() {
         aoiDisplay.current = 0;
       }
     }
-    handleApplyConfigChanges();
+    //handleApplyConfigChanges(); //feb 17
   }
 
   function handleDelete() {
@@ -350,7 +354,6 @@ export function MapBuilder() {
       imageError = false;
       return;
     }
-
     if (!imageError) {
       const newItems = [...aoiRecord];
       aoiRecord[index].url = event.target.value;
@@ -416,17 +419,35 @@ export function MapBuilder() {
   }
 
   return(
-    <Box sx={{ display: 'flex', flexDirection: 'column' ,overflow: "auto"}}>
-      <FormControl component="fieldset" sx={{ mt: 1, gap: 3 }}>
-        <SingleSelectComplete
-          options={languageOptions}
-          defaultValue={(isEn) ? 'en' : 'fr'}
-          onChange={(event) => { const myMap = cgpv.api.getMapViewer(mapId);
-           (isEn) ? myMap.setLanguage('fr', true) : myMap.setLanguage('en', true);
-           (isEn) ? Language.english = false : Language.english= true;
-           setEn(!isEn);
-          }}
-          label="Change Language" placeholder="" />
+    <Box sx={{ display: 'flex', justifyContent: 'flex-start',flexDirection: 'column' ,overflow: "auto"}}>
+      <ConfigSaveUploadButtons  />
+      <FormControl component="fieldset" sx={{ mt: 1, gap: 3 ,align:"center"}}>
+
+    <FormGroup aria-label="position">
+
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+
+        <Box textAlign='center'>
+          <Button onClick={handleApplyConfigChanges}
+            style={{ maxWidth: '200px', maxHeight: '30px', minWidth: '200px', minHeight: '30px',
+            textAlign: 'center'}}
+            disabled={!isModified}
+            variant="contained" color="primary" size="small">
+            Apply Config Changes
+          </Button>
+        </Box>
+       <Box textAlign='center'>
+
+        <Button id="handleApplyStateToConfigFile" variant="contained" color="primary" size="small" 
+         onClick={handleApplyStateToConfigFile}
+          style={{ maxWidth: '200px', maxHeight: '30px', minWidth: '200px', minHeight: '30px' ,
+           textAlign: 'center' }}>
+           Apply State to Config
+        </Button>
+       </Box>
+    </Box>
+ </FormGroup>
+
         <SingleSelectComplete
           options={CONFIG_FILES_LIST}
           defaultValue={configFilePath}
@@ -439,140 +460,64 @@ export function MapBuilder() {
               }
               handleConfigFileChange(value); }}
           label="Select Configuration File" placeholder="" />
-      </FormControl>
 
-      <FormGroup aria-label="position">
-        <FormLabel component="legend" sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
-          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 4 }}>
+      <Divider sx={{ my: 1,border: 'none' }}> </Divider>
+
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'flex-start',textAlign: 'left'}}>
+         <Tabs value={tabValue} onChange={(_event, newValue) => {setTabValue(newValue) ; currentTab.current= newValue;} } >
+         <Tab style={{ minWidth: '50px',whiteSpace: 'pre-wrap' , display: 'flex', justifyContent: 'flex-start',textAlign: 'left' }} label=" Map  
+ Settings" />
+        <Tab  style={{ minWidth: '50px',whiteSpace: 'pre-wrap', display: 'flex', justifyContent: 'flex-start',textAlign: 'left'}} label="Layers" />
+        <Tab style={{ minWidth: '50px',whiteSpace: 'pre-wrap' , display: 'flex', justifyContent: 'flex-start',textAlign: 'left'}} label="UI" />
+        <Tab style={{  minWidth: '50px',whiteSpace: 'pre-wrap' , display: 'flex', justifyContent: 'flex-start',textAlign: 'left'}} label="Packages" />
+        </Tabs>
+      </Box>
+
+        {tabValue === 0 && 
+        <Box sx={{  mt: 1, gap: 3,borderBottom: 1, borderColor: 'divider' }}  // Map
+        >
+
+        <Divider sx={{ my: 2,border: 'none' }}> Initial View</Divider>
+
+        <FormGroup aria-label="position">
+          <FormLabel component="legend">Map Zoom Levels</FormLabel>
+
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
             <FormControl>
-              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                <TextField inputRef={mapWidth1}
-                  style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
-                  error={!isMapSizeValid}
-                  size="small"
-                  id="map-width"
-                  label="Width"
-                  defaultValue={mapWidth.replace("px", "")}
-                  onChange={(event) => {
-                    if (event.target.value.match(/^\d+$/)) {
-                      setMapSizeValid(true);
-                      setMapWidth(event.target.value + "px");
-                    }
-                    else {
-                      setMapSizeValid(false);
-                     }
-                     setIsModified(true);
-                  }
-                }/>
+              <SingleSelectComplete
+                options={zoomOptions}
+                defaultValue={getProperty('map.viewSettings.minZoom')}
+                onChange={(value) => updateProperty('map.viewSettings.minZoom', value)}
+                label="Min Zoom" placeholder="" />
+            </FormControl>
 
-                <TextField
-                  style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
-                  error={!isMapSizeValid}
-                  size="small"
-                  id="map-height"
-                  label="Height"
-                  defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
-                  onChange={(event) => {
-                    if (event.target.value.match(/^\d+$/)) {
-                      setMapSizeValid(true);
-                      setMapHeight(event.target.value + "px");
-                    }
-                   else {
-                      setMapSizeValid(false);
-                   }
-                     setIsModified(true);
-                   }
-                  }
-                />
+            <Divider sx={{ my: 4,border: 'none'  }} ></Divider>
 
-                <Button ref={refAppply}
-                  style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '50px', minHeight: '40px' }}
-                  onClick={(event) => { (isMapSizeValid) ? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
-                  }}
-                  variant="contained" color="primary" size="small">
-                    Apply
-                </Button>
-
-                <Button 
-                  style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
-                  onClick={(event) => {
-                    if (mapWidth1.current) {  // update width text field,mapWidth is a hook and is a update delay
-                       calculateMapWidth();
-                    }
-                    setMapSizeValid(true)
-                    setMapWidth(mapWidth1.current!.value);
-                    setIsModified(true);
-                    setTimeout(() => {refAppply.current!.click()}, 1000);  //works with the d
-                  }}
-                  variant="contained" color="primary" size="small">
-                  Fit
-                </Button>
-            </Stack>
-          </FormControl>
-        </Box>
-      </FormGroup>   
-
-      <Divider sx={{ my: 2 }} />
-
-      <ConfigSaveUploadButtons />
-
-      <Divider sx={{ my: 2 }} />
-
-      <Button onClick={handleApplyConfigChanges}
-        disabled={!isModified}
-        variant="contained" color="primary" size="small">
-        Apply Config Changes
-      </Button>
-
-      <Divider sx={{ my: 2 }} />
-
-      <Button id="handleApplyStateToConfigFile" variant="contained" color="primary" size="small" onClick={handleApplyStateToConfigFile}>
-        Apply State to Config File
-      </Button>
-
-        <Divider sx={{ my: 2 }} >Geocore Layer</Divider>
-      <FormGroup aria-label="position">
-      <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 1}}>
-      <FormControl> 
-        <TextField
-          style={{ maxWidth: '330px', maxHeight: '30px', minWidth: '330px', minHeight: '30px' }}
-          error={!isMapSizeValid}
-          size="small"
-          id="geocore-id"
-          label="Enter Geocore ID"
-          onChange={(event) => {
-            if (event.target.value.match(/[a-zA-Z0-9_-]{36}$/)) {
-              SetGeocoreFileSelected(true);
-              setGecoreId(event.target.value);
-            }
-            else {
-              enqueueSnackbar("Geocore ID must be 36 characters");
-             }
-            }
-           }
-        />
-          </FormControl>
-        <FormControl>
-        <Button variant="contained" color="primary" 
-            style={{ maxWidth: '40px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
-          onClick={(event) => {
-            if (geocoreFileSelected){
-              const myMap = cgpv.api.getMapViewer(mapId);
-              myMap.layer.addGeoviewLayerByGeoCoreUUID(geocoreId);  
-              setTimeout(() => loadGeocoreMap(geocoreId), 7000); //wait for file load
-             }
-          }} >
-          ADD
-            </Button>
-          </FormControl>
-        </Box>
+            <FormControl>
+              <SingleSelectComplete
+                options={zoomOptions}
+                defaultValue={getProperty('map.viewSettings.maxZoom')}
+                onChange={(value) => updateProperty('map.viewSettings.maxZoom', value)}
+                label="Max Zoom" placeholder="" />
+            </FormControl>
+          </Box>
         </FormGroup>
 
-      <Divider sx={{ my: 2 }} >Map Configuration</Divider>
+        <FormGroup aria-label="map projection">
+          <SingleSelectComplete
+            options={mapProjectionOptions}
+            defaultValue={getProperty('map.viewSettings.projection')}
+            onChange={(value) => updateProperty('map.viewSettings.projection', value)}
+            label="Map Projection" placeholder="" />
+         </FormGroup>
 
-      <FormControl component="fieldset" sx={{ mt: 1, gap: 1 }}>
+      <Divider sx={{ my: 2,border: 'none'  }} >  BaseMap  </Divider>
 
-        <SingleSelectComplete
+      <Box sx={{ display: 'flex', flexDirection: 'column' ,overflow: "auto"}}>
+
+      <FormControl component="fieldset" sx={{ mt: 1, gap: 2 }}>
+       <SingleSelectComplete
           options={themeOptions}
           defaultValue={getProperty('theme')}
           onChange={(value) => updateProperty('theme', value)}
@@ -593,9 +538,7 @@ export function MapBuilder() {
         <SingleSelectComplete
           options={basemapShading}
           defaultValue={Boolean(getProperty('map.basemapOptions.shaded')) ? 'true':'false' }
-          onChange={(value) => {
-            updateProperty('map.basemapOptions.shaded', JSON.parse(value)); 
-          }}
+          onChange={(value) => updateProperty('map.basemapOptions.shaded', JSON.parse(value))}
           label="Base Map Shaded" placeholder="" />
 
          <SingleSelectComplete
@@ -604,37 +547,155 @@ export function MapBuilder() {
           onChange={(value) => updateProperty('map.basemapOptions.labeled', JSON.parse(value))}
           label="Base Map Labeled" placeholder="" />
 
-        <FormGroup aria-label="position">
-          <FormLabel component="legend">Zoom Levels</FormLabel>
+       </FormControl>
+        </Box>
+      </Box>}
 
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-            <FormControl>
-              <SingleSelectComplete
-                options={zoomOptions}
-                defaultValue={getProperty('map.viewSettings.minZoom')}
-                onChange={(value) => updateProperty('map.viewSettings.minZoom', value)}
-                label="Min Zoom" placeholder="" />
-            </FormControl>
-            <FormControl>
-              <SingleSelectComplete
-                options={zoomOptions}
-                defaultValue={getProperty('map.viewSettings.maxZoom')}
-                onChange={(value) => updateProperty('map.viewSettings.maxZoom', value)}
-                label="Max Zoom" placeholder="" />
-            </FormControl>
-          </Box>
-        </FormGroup>
+      {tabValue === 1 && <Box sx={{  mt: 1, gap: 3,borderBottom: 1, borderColor: 'divider' }} // Layers
+      >
 
-        <FormGroup aria-label="map projection">
+          <Divider sx={{ my: 2,border: 'none'  }} > Add Geocore File </Divider>
+
+          <FormControl> 
+            <TextField
+              style={{ maxWidth: '330px', maxHeight: '30px', minWidth: '330px', minHeight: '30px' }}
+              error={!isMapSizeValid}
+              size="small"
+              id="geocore-id"
+              label="Enter Geocore ID"
+              onChange={(event) => {
+                if (event.target.value.match(/[a-zA-Z0-9_-]{36}$/)) {
+                  SetGeocoreFileSelected(true);
+                  setGecoreId(event.target.value);
+                }
+                else {
+                  enqueueSnackbar("Geocore ID must be 36 characters");
+                }
+              }
+           }
+        />
+          </FormControl>
+        <Button variant="contained" color="primary" 
+            style={{ maxWidth: '40px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
+          onClick={(event) => {
+            if (geocoreFileSelected){
+              const myMap = cgpv.api.getMapViewer(mapId);
+              myMap.layer.addGeoviewLayerByGeoCoreUUID(geocoreId);  
+              setTimeout(() => loadGeocoreMap(geocoreId), 7000); //wait for file load
+             }
+          }} >
+          ADD
+            </Button>
+
+             <Box sx={{ p: 2 }}>
+                 <Divider sx={{ my: 2,border: 'none'  }} >  Layer Status </Divider>
+
+                  {legendLayerStatusList.length === 0 && <p>No layers found</p>}
+
+                  <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                    {legendLayerStatusList.map((row, index) => (
+
+                      <ListItem disableGutters disablePadding divider={true} key={`$legend_layer_status_index_${index}`}>
+                        <ListItemText primary={row.layerName} secondary={row?.status} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+       </Box>
+       }
+          {tabValue === 2 && <Box sx={{  mt: 1, gap: 3,borderBottom: 1, borderColor: 'divider' }} // User Interface
+          >
+          <Divider sx={{ my: 2 }}/> 
+
           <SingleSelectComplete
-            options={mapProjectionOptions}
-            defaultValue={getProperty('map.viewSettings.projection')}
-            onChange={(value) => updateProperty('map.viewSettings.projection', value)}
-            label="Map Projection" placeholder="" />
-        </FormGroup>
+          options={languageOptions}
+          defaultValue={(isEn) ? 'en' : 'fr'}
+          onChange={(event) => { const myMap = cgpv.api.getMapViewer(mapId);
+           (isEn) ? myMap.setLanguage('fr', true) : myMap.setLanguage('en', true);
+           (isEn) ? Language.english = false : Language.english= true;
+           setEn(!isEn);
+          }}
+          label="Change Language" placeholder="" />
 
-        <FormGroup aria-label="Components">
-          <FormLabel component="legend">Components</FormLabel>
+           <Divider sx={{ my: 3 ,border: 'none' }}> Map Size in px</Divider>
+
+            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+              <TextField inputRef={mapWidth1}
+                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
+                error={!isMapSizeValid}
+                size="small"
+                id="map-width"
+                label="Width"
+                defaultValue={mapWidth.substring(0, mapWidth.length - 2)}  
+                onChange={(event) => { 
+                   if (event.target.value.match(/^\d+$/)) {
+                     setMapSizeValid(true);
+                     setMapWidth(event.target.value + "px");
+                   }
+                   else {
+                      setMapSizeValid(false);
+                   }
+                   setIsModified(true);
+                  }
+                }/>
+
+            <TextField
+                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
+                error={!isMapSizeValid}
+                size="small"
+                id="map-height"
+                label="Height"
+                defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
+                onChange={(event) => {
+                   if (event.target.value.match(/^\d+$/)) {   
+                     setMapSizeValid(true);
+                     setMapHeight(event.target.value + "px");
+                   }
+                   else {
+                     setMapSizeValid(false);
+                   }
+                    setIsModified(true);
+                  }
+                }
+             />
+
+          <Button ref={refAppply}
+           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '50px', minHeight: '40px' }}
+           onClick={(event) => {
+             (isMapSizeValid) ? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
+           }
+          }
+
+        variant="contained" color="primary" size="small">
+        Apply
+        </Button>
+
+         <Button 
+           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
+           onClick={(event) => {
+          
+             if ( mapWidth1.current)  {  // update width text field,mapWidth is a hook and is a update delay
+               panelSize.current.toString().includes('.') ?
+                 mapWidth1.current!.value =(panelSize.current.toString().substring(0, panelSize.current.toString().indexOf('.')))
+                 : mapWidth1.current!.value =(panelSize.current.toString()+"px");
+             }   
+              setMapSizeValid(true)
+              setMapWidth(mapWidth1.current!.value);
+              setIsModified(true);
+              setTimeout(() => {refAppply.current!.click()}, 1000);  //works with the d
+             }
+           }
+          variant="contained" color="primary" size="small">
+           Fit
+         </Button>
+         </Stack>
+
+        <FormControl component="fieldset" sx={{ mt: 1, gap: 1 }}>
+
+        <Divider sx={{ my: 2,border: 'none' } }>Map Components</Divider>
+
+        <FormGroup >
+
           <PillsAutoComplete
             defaultValue={getProperty('components')}
             onChange={(value) => updateArrayProperty('components', value)}
@@ -646,7 +707,7 @@ export function MapBuilder() {
         <FormGroup aria-label="Navigation Bar Options">
           <FormLabel component="legend">Navigation Bar</FormLabel>
           <PillsAutoComplete
-            defaultValue={((getProperty('navBar') !== undefined) && (Array.from(getProperty('navBar')!).length) === 0) ? ['zoom'] : ['zoom', 'home', 'basemap-select', 'fullscreen']} 
+            defaultValue={(getProperty('navBar') !== undefined) ? getProperty('navBar') : ['home', 'basemap-select', 'fullscreen']}  //removed zoom
             onChange={(value) => updateArrayProperty('navBar', value)}
             options={navBarOptions}
             label="Options" placeholder="" />
@@ -661,7 +722,7 @@ export function MapBuilder() {
           <PillsAutoComplete
             defaultValue={getProperty('footerBar.tabs.core')}
             onChange={(value) => {
-              updateArrayProperty('footerBar.tabs.core', value);            
+              updateArrayProperty('footerBar.tabs.core', value);    
              }
             }
             options={footerTabslist} label="Footer Options" placeholder="" />
@@ -695,8 +756,56 @@ export function MapBuilder() {
             }
             options={appBarOptions} label="App-bar Options" placeholder="" />
         </FormGroup>
+        </FormControl>
 
-        <Divider sx={{ my: 2 }} >Packages</Divider>
+        </Box>}
+
+        {tabValue === 3 && <Box sx={{ p: 3 }}  // Packages
+        >
+        <Divider sx={{ my: 2 ,border: 'none'}} >Add Core Packages </Divider>
+         <FormGroup >
+
+        <FormGroup aria-label="Navigation Bar Options">
+          <FormLabel component="legend">Navigation Bar</FormLabel>
+          <PillsAutoComplete
+            defaultValue={(getProperty('navBar') !== undefined) ? getProperty('navBar') : ['home', 'basemap-select', 'fullscreen']}  //removed zoom
+            onChange={(value) => updateArrayProperty('navBar', value)}
+            options={navBarOptions2}
+            label="Options" placeholder="" />
+        </FormGroup>
+
+          <Divider sx={{ my: 2 ,border: 'none'}} />
+
+          <FormGroup aria-label="Appbar">
+          <FormLabel component="legend">
+            App Bar
+            <Switch size="small" checked={isPropertyEnabled('appBar.tabs.core')}
+              onChange={(event) => handleSwitchChange(event, 'appBar')}/>
+          </FormLabel>
+          <PillsAutoComplete
+            defaultValue={getProperty('appBar.tabs.core')}
+            onChange={(value: any, reason: any, selectedvalue: any) => {
+            updateArrayProperty('appBar.tabs.core', value);
+              if ((value.find((element: any) => element === "aoi-panel")) && (reason == "selectOption")) {
+                displayLayers.current = 2;
+                aoiDisplay.current = 2;
+                setAoiChecked(true);
+                setAoiIsDisabled(false);
+              }
+              else if ((selectedvalue === "aoi-panel") && (reason == "removeOption")) {
+                displayLayers.current = 0;
+                aoiDisplay.current = 0;
+                aoiModified.current = 0;
+                setItemColor('white'); //erase switch label
+                setAoiChecked(false);
+                setAoiIsDisabled(true);
+                forceUpdate;
+                }
+              }
+            }
+            options={appBarOptions2} label="App-bar Options" placeholder="" />
+
+             <Divider sx={{ my: 2 }}/>
 
         <FormGroup aria-label="Core Packages Options">
           <FormLabel component="legend">Core Packages</FormLabel>
@@ -709,6 +818,7 @@ export function MapBuilder() {
                 setIsModified(true);
                 displayLayers.current = 1;
                 swiperDisplay.current = 1;
+                console.log("swiper display current is set ");
                 setSwiperChecked(true);
                 createLayerList();
                 handlePackageChange('corePackages', value, reason, selectedvalue);
@@ -722,13 +832,14 @@ export function MapBuilder() {
                 _.set(configJson, "corePackages", []);
                 setSwiperChecked(false); 
                 setIsDisabled(true);
+                const myMap = cgpv.api.getMapViewer(mapId);
+                 myMap.plugins['swiper'].deActivateAll();
                 if (aoiDisplay.current === 2) {
                   _.set(modifiedConfigJson, "corePackages", ["aoi-panel"]);
                 }
                 else {
                   _.set(modifiedConfigJson, "corePackages", []);
                 }
-                handleApplyConfigChanges();
               }
               setIsModified(true);
             }}
@@ -736,6 +847,27 @@ export function MapBuilder() {
             label="CorePackages Options" placeholder="" />
 
         </FormGroup>
+
+          <Divider sx={{ my: 2 ,border: 'none'}} />
+
+          <FormGroup aria-label="Footer bar">
+          <FormLabel component="legend">
+            Footer Bar
+            <Switch size="small" checked={isPropertyEnabled('footerBar.tabs.core')}
+              onChange={(event) => handleSwitchChange(event, 'footerBar')}/>
+          </FormLabel>
+
+          <PillsAutoComplete
+            defaultValue={getProperty('footerBar.tabs.core')}
+            onChange={(value: any, reason: any, selectedvalue: any) => {
+              updateArrayProperty('footerBar.tabs.core', value);
+              setIsModified(true);
+            }}
+            options={footerTabsList2} label="Footer Options" placeholder="" />
+
+        </FormGroup>
+        </FormGroup>
+       </FormGroup>
 
        <FormGroup aria-label="Layer List"  >
 
@@ -747,11 +879,12 @@ export function MapBuilder() {
             : ''}
 
            {swiperDisplay.current === 1 ?
+
+           <Tooltip title="Click to expand/hide Swiper records">
             <FormControlLabel id="swiper" sx={{
               justifyContent: 'flex-end',
               alignItems: 'baseline',
               }}
-
               label=""
               disabled={isDisabled}
               control={<Switch checked={swiperChecked} onChange={handleChangeSwiper}
@@ -771,7 +904,7 @@ export function MapBuilder() {
                     },
                       '& .MuiFormControlLabel-root': {
                         color: itemColor,
-                    },          
+                    },
                       "&.MuiSwitch-root .MuiSwitch-switchBase": {
                     },
                       "& .MuiSwitch-thumb": {
@@ -784,9 +917,8 @@ export function MapBuilder() {
                           backgroundColor: itemColor // Example: Orange color when checked
                     }
                   }}
-
                 />}
-               labelPlacement="start"/>
+               labelPlacement="start"/></Tooltip>
           : ''}
 
           <Collapse in={swiperChecked}>
@@ -797,7 +929,8 @@ export function MapBuilder() {
               onChange={(value) => {
                 updateProperty('corePackagesConfig[0].swiper.orientation', value);
                 _.set(configJson, "corePackagesConfig[0].swiper.orientation", value);
-                handleApplyConfigChanges();
+                 const myMap = cgpv.api.getMapViewer(mapId);
+                 myMap.plugins['swiper'].setOrientation(value); 
                 }
               }
               label="Swiper Orientation" placeholder="" />
@@ -815,9 +948,9 @@ export function MapBuilder() {
               }
               label="Swiper Keyboard Offset" placeholder="" />
 
-              <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2 }} />
 
-              <PillsAutoComplete
+            <PillsAutoComplete
                 options={layerOptions}
                 defaultValue={getProperty('corePackagesConfig[0].swiper.layers')}
                 onChange={( value: any, reason: any,value2) => {
@@ -841,12 +974,14 @@ export function MapBuilder() {
         <FormGroup aria-label="Layer List"  >
         {aoiDisplay.current === 2 ? 
           <label style={{ color: itemColor ,justifyContent: 'left',
-              alignItems: 'left',}}>
+              alignItems: 'left',}} >
             Aoi Config
             </label>
             : ''}
+ 
          {aoiDisplay.current === 2 ? 
-
+   
+          <Tooltip title="Click to expand/hide Aoi records">
             <FormControlLabel  sx={{
               justifyContent: 'flex-end', color: itemColor,
               alignItems: 'baseline'
@@ -883,18 +1018,23 @@ export function MapBuilder() {
                         backgroundColor: itemColor // Example: Orange color when checked
                     }
                   }}/> 
-              }
-              labelPlacement="start"/>
+           
+              }       
+              labelPlacement="start"/></Tooltip>
             : ''}
 
           <Collapse in={aoiChecked}>
-
-            <Button onClick={handleAdd} 
+           <Tooltip title="Click to add Aoi record">
+      
+            <Button onClick={(event) => {
+              handleAdd();
+            } }
               variant="contained" color="primary" size="small">
             Add
             </Button>
+            </Tooltip>
 
-            <Tooltip title="Select item(s) using item checkbox">
+            <Tooltip title="Select item(s) using item checkbox then click Delete">
               <Button onClick={handleDelete}
                 variant="contained"
                 color="primary"
@@ -903,10 +1043,13 @@ export function MapBuilder() {
               </Button>
             </Tooltip>
 
-            <Button onClick={handleSave}
+            <Tooltip title="Click tp Save Aoi records">
+              <Button onClick={handleSave}
               variant="contained" color="primary" size="small">
                Save
-            </Button>
+              </Button>
+            </Tooltip>
+
             <Tooltip title="zoom to location,map window will be extent, click create extent button">
               <Button onClick={handleExtent}
                variant="contained"
@@ -974,10 +1117,11 @@ export function MapBuilder() {
           <Divider sx={{ my: 2 }} />
 
           </Collapse>
-
+              
           </FormGroup>
-
-      </FormControl>
-    </Box>
+        </Box>}
+      </Box>
+    </FormControl>
+   </Box>
   );
 }
