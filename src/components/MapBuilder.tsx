@@ -19,14 +19,13 @@ import { useContext, useState, useReducer, useRef,useEffect,
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,
+import {aoiModified,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
   corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language
 } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 import { useSnackbar } from '@/providers/snackbarProvider';
-import React from 'react';
 
 export var URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`;
 
@@ -73,15 +72,6 @@ export function MapBuilder() {
   const refAppply= useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (document.getElementById(mapId) !== null) { 
-      if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
-         setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
-
-       }
-    };
-  }, []);
-
-  useEffect(() => {
     if (cgpv.api.hasMapViewer(mapId)) {
       const myMap1 = cgpv.api.getMapViewer(mapId);
       (Language.english ) ? myMap1.setLanguage('en', true) : myMap1.setLanguage('fr', true);
@@ -95,6 +85,14 @@ export function MapBuilder() {
   const handleChangeSwiper = () => {
     setSwiperChecked((prev) => !prev);
   };
+
+  const calculateMapWidth = () => {
+    if (mapWidth1.current) {  // update width text field,mapWidth is a hook and is a update delay
+       panelSize.current.toString().includes('.') ?
+       mapWidth1.current!.value =panelSize.current.toString().substring(0, (panelSize.current.toString().indexOf('.')))
+         : mapWidth1.current!.value =(panelSize.current.toString()+"px");
+    }
+  }
 
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = {...modifiedConfigJson};
@@ -428,8 +426,8 @@ export function MapBuilder() {
            (isEn) ? Language.english = false : Language.english= true;
            setEn(!isEn);
           }}
-        label="Change Language" placeholder="" />
-      <SingleSelectComplete
+          label="Change Language" placeholder="" />
+        <SingleSelectComplete
           options={CONFIG_FILES_LIST}
           defaultValue={configFilePath}
           applyGrouping={true}
@@ -444,84 +442,74 @@ export function MapBuilder() {
       </FormControl>
 
       <FormGroup aria-label="position">
-      
-          <FormLabel component="legend" sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
+        <FormLabel component="legend" sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
           <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 4 }}>
             <FormControl>
-                <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <TextField inputRef={mapWidth1}
-                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
-                error={!isMapSizeValid}
-                size="small"
-                id="map-width"
-                label="Width"
-                defaultValue={mapWidth.substring(0, mapWidth.length - 2)}  
-                onChange={(event) => { 
-                   if (event.target.value.match(/^\d+$/)) {
-                     setMapSizeValid(true);
-                     setMapWidth(event.target.value + "px");
-                   }
+              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                <TextField inputRef={mapWidth1}
+                  style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
+                  error={!isMapSizeValid}
+                  size="small"
+                  id="map-width"
+                  label="Width"
+                  defaultValue={mapWidth.replace("px", "")}
+                  onChange={(event) => {
+                    if (event.target.value.match(/^\d+$/)) {
+                      setMapSizeValid(true);
+                      setMapWidth(event.target.value + "px");
+                    }
+                    else {
+                      setMapSizeValid(false);
+                     }
+                     setIsModified(true);
+                  }
+                }/>
+
+                <TextField
+                  style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
+                  error={!isMapSizeValid}
+                  size="small"
+                  id="map-height"
+                  label="Height"
+                  defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
+                  onChange={(event) => {
+                    if (event.target.value.match(/^\d+$/)) {
+                      setMapSizeValid(true);
+                      setMapHeight(event.target.value + "px");
+                    }
                    else {
                       setMapSizeValid(false);
                    }
-                   setIsModified(true);
+                     setIsModified(true);
+                   }
                   }
-                }/>
-          
-            <TextField
-                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
-                error={!isMapSizeValid}
-                size="small"
-                id="map-height"
-                label="Height"
-                defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
-                onChange={(event) => {
-                   if (event.target.value.match(/^\d+$/)) {   
-                     setMapSizeValid(true);
-                     setMapHeight(event.target.value + "px");
-                   }
-                   else {
-                     setMapSizeValid(false);
-                   }
+                />
+
+                <Button ref={refAppply}
+                  style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '50px', minHeight: '40px' }}
+                  onClick={(event) => { (isMapSizeValid) ? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
+                  }}
+                  variant="contained" color="primary" size="small">
+                    Apply
+                </Button>
+
+                <Button 
+                  style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
+                  onClick={(event) => {
+                    if (mapWidth1.current) {  // update width text field,mapWidth is a hook and is a update delay
+                       calculateMapWidth();
+                    }
+                    setMapSizeValid(true)
+                    setMapWidth(mapWidth1.current!.value);
                     setIsModified(true);
-                  }
-                }
-             />
-          
-          <Button ref={refAppply}
-           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '50px', minHeight: '40px' }}
-           onClick={(event) => {
-             (isMapSizeValid) ? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
-           }
-          }
-
-        variant="contained" color="primary" size="small">
-        Apply
-        </Button>
-        
-         <Button 
-           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
-           onClick={(event) => {
-          
-             if ( mapWidth1.current)  {  // update width text field,mapWidth is a hook and is a update delay
-               panelSize.current.toString().includes('.') ?
-                 mapWidth1.current!.value =(panelSize.current.toString().substring(0, panelSize.current.toString().indexOf('.')))
-                 : mapWidth1.current!.value =(panelSize.current.toString()+"px");
-             }   
-              setMapSizeValid(true)
-              setMapWidth(mapWidth1.current!.value);
-              setIsModified(true);
-              setTimeout(() => {refAppply.current!.click()}, 1000);  //works with the d
-             }
-           }
-          variant="contained" color="primary" size="small">
-           Fit
-         </Button>
-         </Stack>
-
-        </FormControl>
+                    setTimeout(() => {refAppply.current!.click()}, 1000);  //works with the d
+                  }}
+                  variant="contained" color="primary" size="small">
+                  Fit
+                </Button>
+            </Stack>
+          </FormControl>
         </Box>
-
       </FormGroup>   
 
       <Divider sx={{ my: 2 }} />

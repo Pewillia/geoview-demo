@@ -17,7 +17,7 @@ export const DEFAULT_LEFT_PANEL_MIN_WIDTH =  29 ;
 export const DEFAULT_LEFT_PANEL_MAX_WIDTH =  50 ;
 export const DEFAULT_LEFT_PANEL_WIDTH =  29 ;
 export const DEFAULT_RIGHT_PANEL_MIN_WIDTH =  50 ;
-export const DEFAULT_RIGHT_PANEL_MAX_WIDTH =  100 ;
+export const DEFAULT_RIGHT_PANEL_MAX_WIDTH =  71 ;
 export const DEFAULT_RIGHT_PANEL_WIDTH =  71 ;
 
 export const DEFAULT_CONFIG = {
