@@ -12,20 +12,26 @@ import {
   List, ListItem,
   Stack
 } from '@mui/material';
+import {Palette} from '@mui/icons-material';
+//import IconButton from '@mui/material/IconButton';
+
+
 import Collapse from '@mui/material/Collapse';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useContext, useState, useReducer, useRef,useEffect, 
+import { useContext, useState, useReducer, useRef,useEffect, useCallback
 } from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
 import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
-  corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language
+  corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language,DrawerPackageActiveGeometry,DrawerPackageGeometryTypes,
+  DrawerPackageVersion,drawerModified,drawerDisplay,drawerHideMeasurements,fillColor3,strokeWidth3,colorClickedOutside,colorClickedOutside2,strokeColor3
 } from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 import { useSnackbar } from '@/providers/snackbarProvider';
+import { HexColorPicker } from "react-colorful";
 
 export var URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`;
 
@@ -38,7 +44,7 @@ export function MapBuilder() {
 
   const { mapId } = cgpvContext;
   const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
-  const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
+  const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(structuredClone(configJson));
   const [isModified, setIsModified] = useState<boolean>(false);
   const [isEn, setEn] = useState<boolean>(Language.english);
   const [isMapSizeValid, setMapSizeValid] = useState(true);
@@ -53,6 +59,19 @@ export function MapBuilder() {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   const displayLayers = useRef(0); 
 
+   const [drawerChecked, setDrawerChecked] = useState(false);
+ 
+
+   interface drawerFuncItem {
+    fillColor: string;
+    strokeColor: string;
+    strokeWidth: string;
+    activeGeometry: string;
+    geomTypes: string[];
+    hideMeasurements :boolean;
+    version: string;
+  }
+
    interface AoiFuncItem {
     id: number;
     title: string;
@@ -61,14 +80,200 @@ export function MapBuilder() {
     isChecked: boolean;
   }
 
+  const drawerFuncs: drawerFuncItem[] = [];
+
+  //const drawerFuncs: drawerFuncItem[] = [{ fillColor:"1", strokeColor:"",  strokeWidth:"",  activeGeometry:"", geomTypes:[], hideMeasurements:false}]
+
+  /*
+  let drawerFuncs: drawerFuncItem[] =[
+    drawerFuncs[0].fillColor ="" ,
+    drawerFuncs[0].strokeColor= "",
+    drawerFuncs[0].strokeWidth= "",
+    drawerFuncs[0].activeGeometry= [],
+    drawerFuncs[0].geomTypes= [],
+    drawerFuncs[0].hideMeasurements =false
+  ]
+  */
+   
   const aoiFuncs: AoiFuncItem[] = []
   const [aoiRecord, setAoiRecord] = useState(aoiFuncs);
   const [extentValue, setExtentValue] = useState('');
   const [extentError, setExtentError] = useState(false);
   const [aoiRecordIndex, setAoiRecordIndex] = useState(-1);
   const [itemColor, setItemColor] = useState('#1976d2');
+  const [color, setColor] = useState("#aabbcc");
+  const [ displayColorPicker1,setDisplayColorPicker1] = useState(false);
+  const [ displayColorPicker2,setDisplayColorPicker2] = useState(false);
+ //  const [strokeColor, setStrokeColor2] = useState(strokeColor3.current);
+
+  const [strokeColor, setStrokeColor2] = useState("#123");
+  const [fillColor, setFillColor2] = useState("#123");
+  const [strokeWidth, setStrokeWidth] = useState(strokeWidth3.current);
+
+  const [drawerRecord, setDrawerRecord] = useState(drawerFuncs);
+
+   //const [ fillColor,setFillColor] = (0);
+  //const popover = useRef<HTMLElement | null>(null);
+  //const popover = useRef<React.LegacyRef<HTMLDivElement> | null>(null);
+
+   const popover = useRef<HTMLDivElement>(null);
+  //const popover = useRef();
+    const popover5 = useRef<HTMLDivElement | null>(null);
+  const [isOpen, toggle] = useState(true);
+   const [isOpen2, toggle2] = useState(true);
+ 
+    const close = useCallback(() => toggle(false), []);
+     const close2 = useCallback(() => toggle2(false), []);
+      const [fillColorError, setFillColorError] = useState(false);
+        const [strokeColorError, setStrokeColorError] = useState(false);
+         const [strokeWidthError, setStrokeWidthError] = useState(false);
+ //  let startedInside = false;
+///    let startedWhenMounted = false;
+ // const [ colorClickedOutside,setColorClickedOutside] = useState(false);
+
+  //const useClickOutside = (ref, handler) => {
+  useEffect(() => {
+     let startedInside = true;
+    let startedWhenMounted = false;
+
+
+    const listener = (event) => {
+  //    console.log("user effect 1111111111111111111111111111111111111111111111");
+        const myElement = document.getElementById('popover');
+      // Do nothing if `mousedown` or `touchstart` started inside ref element
+      if (startedInside || !startedWhenMounted) {
+   //     console.log("ckicjed iutside  11111111111111",myElement!.contains(event.target));
+        //    console.log("ckicjed iutside  1", myElement);
+   
+        return;
+      }
+   
+      // Do nothing if clicking ref's element or descendent elements
+     // if (!popover.current || popover.current.contains(event.target)) return;
+        if ( !myElement!.contains(event.target)) {
+    //    console.log("ckicjed iutside  11111111111111111 1");
+       close();
+      return;}
+ 
+      close;
+    };
+
+  
+    const validateEventStart = (event) => {
+  //    startedWhenMounted = popover.current;
+  //    startedInside = popover.current && popover.current.contains(event.target);
+    };
+
+  //  document.addEventListener("mousedown", validateEventStart);
+      document.addEventListener('click', function(event) {
+      // Do nothing      // Do nothing if `mousedown` or `touchstart` started inside ref element
+      const myElement = document.getElementById('popover2');
+  
+    // 3. Check if the clicked element (event.target) is contained within myElement
+     const inputElement = event.target as HTMLInputElement;
+      if ((!myElement!.contains(inputElement)) ) {
+   
+   // if ((!myElement!.contains(inputElement))&& (fillColor !== ("#123") )) {
+    //  if   (fillColor !== ("#123")) { 
+      if   (colorClickedOutside.current) { 
+   //     console.log("iding colo1111111111111111111111");
+         //setDisplayColorPicker1(!displayColorPicker1);
+         myElement!.style.display = 'none';
+         colorClickedOutside.current=false;
+        }
+
+   //   console.log('Clicked outside the element 11111111111!',colorClickedOutside);
+       //myElement!.style.display = 'none';
+    } else {
+    //  console.log('Clicked inside the element.111111111111111111111111');
+      colorClickedOutside.current=true;
+  } });
+ //   document.addEventListener("toucart", validateEventStart);
+ //   document.addEventListener("click", listener);
+
+  //   return () => {
+  //    document.removeEventListener("mousedown", validateEventStart);
+  //    document.removeEventListener("touchstart", validateEventStart);
+  //    document.removeEventListener("click", listener);
+    
+  }, [popover, close]);
+//};
+  
+//------------------------------------------------------------------------------------------------
+  useEffect(() => {
+     let startedInside = true;
+    let startedWhenMounted = false;
+
+
+  
+    const listener = (event) => {
+   //   console.log("user effect 1111111111111111111111111111111111111111111111");
+        const myElement2 = document.getElementById('popover4');
+      // Do nothing if `mousedown` or `touchstart` started inside ref element
+      if (startedInside || !startedWhenMounted) {
+        console.log("ckicjed inside  2222",myElement2!.contains(event.target));
+        //    console.log("ckicjed iutside  1", myElement);
+   
+        return;
+      }
+   
+      // Do nothing if clicking ref's element or descendent elements
+     // if (!popover.current || popover.current.contains(event.target)) return;
+        if ( !myElement2!.contains(event.target)) {
+        console.log("ckicjed iutside   2222");
+       close2();
+      return;}
+ 
+      close2;
+    };
+
+  
+    const validateEventStart = (event) => {
+  //    startedWhenMounted = popover.current;
+  //    startedInside = popover.current && popover.current.contains(event.target);
+    };
+
+  //  document.addEventListener("mousedown", validateEventStart);
+      document.addEventListener('click', function(event) {
+      // Do nothing      // Do nothing if `mousedown` or `touchstart` started inside ref element
+      const myElement2 = document.getElementById('popover3');
+  
+    // 3. Check if the clicked element (event.target) is contained within myElement
+     const inputElement2 = event.target as HTMLInputElement;
+      if ((!myElement2!.contains(inputElement2)) ) {
+   
+   // if ((!myElement!.contains(inputElement))&& (fillColor !== ("#123") )) {
+    //  if   (fillColor !== ("#123")) { 
+      if   (colorClickedOutside2.current) { 
+           console.log("iding color  222222222222222");
+         //setDisplayColorPicker1(!displayColorPicker1);
+         myElement2!.style.display = 'none';
+         colorClickedOutside2.current=false;
+        }
+
+      console.log('Clicked outside the frist element22222!',colorClickedOutside2);
+       //myElement!.style.display = 'none';
+    } else {
+      console.log('Clicked inside the second element2222.');
+      colorClickedOutside2.current=true;
+  } });
+ //   document.addEventListener("toucart", validateEventStart);
+ //   document.addEventListener("click", listener);
+
+  //   return () => {
+  //    document.removeEventListener("mousedown", validateEventStart);
+  //    document.removeEventListener("touchstart", validateEventStart);
+  //    document.removeEventListener("click", listener);
+    
+  }, [popover5, close2]);
+  
+// const inputRef1 = useRef<HTMLInputElement>(null);
+ // const inputRef2 = useRef<HTMLInputElement>(null);
+   const inputRef3 = useRef<HTMLInputElement>(null);
+    const inputRef4 = useRef<HTMLInputElement>(null);
  
   useEffect(() => {
+   
     if (document.getElementById(mapId) !== null) { 
       if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
         setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
@@ -91,6 +296,39 @@ export function MapBuilder() {
   const handleChangeSwiper = () => {
     setSwiperChecked((prev) => !prev);
   };
+
+  const handleChangeDrawer = () => {
+    setDrawerChecked((prev) => !prev);
+  };
+
+ const setFillColor= (color: string) => {
+   {
+
+      inputRef3.current!.value = color;
+      drawerRecord[0].fillColor = color;
+       setFillColor2(color)
+  
+     setIsModified(true);
+           
+    console.log("fill color =",color);
+  
+  };
+}
+
+const setStrokeColor= (color: string) => {
+   {
+    inputRef4.current!.value= color;
+     drawerRecord[0].strokeColor = color;
+       setFillColor2(color)
+      setStrokeColor2(color);
+     setIsModified(true);
+     //    updateProperty('corePackagesConfig[0].drawer.style.strokeColour',inputRef2.current!.value.toString());
+   
+    console.log("stroke color =",color)
+ //   setDrawerChecked((prev) => !prev);
+  };
+}
+
 
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = {...modifiedConfigJson};
@@ -127,10 +365,92 @@ export function MapBuilder() {
   }
 
   const getProperty = (property: string, defaultValue = undefined) => {
-    if (property === "corePackages") {
+ //   (typeof drawerFuncs[0] === "undefined") ? console.log("fill color undefined") : console.log("fill color is defined",drawerFuncs[0].fillColor);
+   // console.log("in get property");
+  //  if (property === "corePackages") 
+       if (property === "navBar") 
+      {
+       //       console.log("core packagers in get propoerties")
+      
       let packages: any = _.get(configJson, property);
       for (var i in packages) {
-        if (packages[i] === "swiper") {
+
+         if (packages[i] === "drawer") {
+       //       console.log("drawer1 in get propoerties")
+        
+          
+         // setTimeout(createLayerList, 5000);
+          if (displayLayers.current === 0) {  // first time thru on reload
+            displayLayers.current = 1;
+            drawerDisplay.current = 1;
+            setDrawerChecked(true);
+         //  forceUpdate()
+        //     console.log("drawer in get propoerties");
+          };
+            if (drawerModified.current === 0) { // like useRef, not modified if reloads  
+           //  drawerModified.current = 1;
+      //        drawerDisplay.current = 1;
+       //    // forceUpdate()
+          //   console.log("drawer2 in get propoerties")
+             while (drawerFuncs.length > 0) {
+               drawerFuncs.pop();
+            }
+            let i3 = 0;
+                console.log("setting drawer func values from config json");
+                let fillColor = 'corePackagesConfig[0].drawer.style.fillColor';
+                let strokeColor = 'corePackagesConfig[0].drawer.style.strokeColor';
+                 //let strokeColor = 'corePackagesConfig[0].drawer.style.strokeColor';
+                let strokeWidth = 'corePackagesConfig[0].drawer.style.strokeWidth';
+                let activeGeometry= 'corePackagesConfig[0].drawer.activeGeometry';
+                let geomTypes= 'corePackagesConfig[0].drawer.geomTypes';
+                let hideMeasurements = 'corePackagesConfig[0].drawer.hideMeasurements';
+                let version = 'corePackagesConfig[0].drawer.version';
+               
+                drawerFuncs.push({version:"", fillColor: "", strokeColor: '', strokeWidth: "", activeGeometry: "",geomTypes:[],hideMeasurements: false }); // added april 7 increse array
+                drawerFuncs[0].version = (_.get(configJson, version));
+                drawerFuncs[0].fillColor = (_.get(configJson, fillColor));
+
+                //  if no hooks no too many refresh problem
+
+
+            //    setFillColor2(_.get(configJson, fillColor));
+                fillColor3.current=(_.get(configJson, fillColor));
+             
+                console.log("setting fill color values from config json",fillColor,drawerFuncs[0].fillColor);
+              
+                drawerFuncs[0].strokeColor = (_.get(configJson, strokeColor));
+            //   setStrokeColor2(_.get(configJson, strokeColor));
+
+                strokeColor3.current =(_.get(configJson, strokeColor));
+                console.log("setting stroke color from config json",strokeColor,drawerFuncs[0].strokeColor);
+
+                drawerFuncs[0].strokeWidth = (_.get(configJson, strokeWidth));
+
+             //   setStrokeWidth(_.get(configJson, strokeWidth));
+                 strokeWidth3.current=(_.get(configJson, strokeWidth));
+             
+                drawerFuncs[0].activeGeometry= (_.get(configJson, activeGeometry));
+                drawerFuncs[0].geomTypes =(_.get(configJson, geomTypes));
+                drawerFuncs[0].hideMeasurements = (_.get(configJson, hideMeasurements));
+
+          //    drawerModified.current =1; // feb 5 in not to exceed reat refreshes
+              
+        //    } // index is not  undefined    
+        //  } //aoimodified
+        };
+      };
+
+      };
+    }; 
+
+     if (property === "corePackages") 
+   //    if (property === "navBar") 
+      {
+              console.log("core packagers in get propoerties")
+      
+      let packages: any = _.get(configJson, property);
+      for (var i in packages) {
+         if (packages[i] === "swiper") {
           setTimeout(createLayerList, 5000);
           if (displayLayers.current === 0) {  // first time thru on reload
             displayLayers.current = 1;
@@ -138,8 +458,10 @@ export function MapBuilder() {
             setSwiperChecked(true);
           };
         };
+
       };
-    };
+    }; 
+
 
     if (property === "appBar.tabs.core") {
       let packages: any = _.get(configJson, property);
@@ -259,6 +581,13 @@ export function MapBuilder() {
     setIsModified(true);
   };
 
+ function handleAddDrawer() {//feb 9 changed to frawer record
+    drawerRecord.push({ fillColor: "", strokeColor: '', strokeWidth: "", activeGeometry: "",geomTypes:[],hideMeasurements: false ,version:"1.0"}); // added april 7 increse array
+    console.log("  added drawer fields");
+    getProperty('corePackagesConfig[0].drawer.style.strokeWidth')
+    forceUpdate();//feb 9
+  };
+
   function handleAdd() {
     const newList = aoiRecord.concat({
       id: aoiRecord.length + 1,
@@ -272,10 +601,58 @@ export function MapBuilder() {
     setAoiRecordIndex(aoiRecordIndex + 1); 
   };
 
+    function handleDrawerSave() {
+
+      console.log("-----in drawer Save");
+  //  _.set(modifiedConfigJson, "corePackages", "drawer");
+ //  if (swiperDisplay.current === 1)
+  //    _.set(modifiedConfigJson, "corePackages", ["drawer","swiper"]);
+   // else if (drawerDisplay.current === 1)
+   //   _.set(modifiedConfigJson, "corePackages", ["drawer"]);
+   //else
+   //   _.set(modifiedConfigJson, "corePackages", ["drawer"]);
+
+   // _.set(modifiedConfigJson, "corePackagesConfig[0].drawer", "corePackagesConfig")
+   // _.set(modifiedConfigJson, "corePackagesConfig[0].drawer", "drawer")
+
+   // _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style', true);
+     _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.fillColor', drawerRecord[0].fillColor);
+     _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeColor', drawerRecord[0].strokeColor);
+     _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeWidth',Number(drawerRecord[0].strokeWidth));
+    //  _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.version',drawerRecord[0].version);  //commented out 9 mar
+     let activeGeometry=(_.get(modifiedConfigJson, 'corePackagesConfig[0].drawer.activeGeom'));
+        let geomeTypes=(_.get(modifiedConfigJson, 'corePackagesConfig[0].drawer.geomTypes'));
+       let hideMeasurements=(_.get(modifiedConfigJson, 'corePackagesConfig[0].drawer.hideMeasurements'));
+      console.log("in save Jsons=",configJson,modifiedConfigJson);
+         
+           console.log("in save actiegeomry=",activeGeometry);
+              console.log("in save actiegeometry2et=",_.get(modifiedConfigJson, 'corePackagesConfig[0].drawer.activeGeom'));
+       //       _.set(modifiedConfigJson, "corePackagesConfig[0].drawer.activeGeom", activeGeometry);
+     //  _.set(modifiedConfigJson, "corePackagesConfig[0].drawer.geomTypes", geomeTypes);
+       _.set(modifiedConfigJson, "corePackagesConfig[0].drawer.hideMeasurements", hideMeasurements); //added feb 9
+       _.set(modifiedConfigJson, "corePackagesConfig[0].drawer.hideMeasurements", Boolean(false)); //added feb 9
+
+_.set(modifiedConfigJson, "corePackagesConfig[0].drawer.hideMeasurements", Boolean(false)); //added feb 9
+
+   //   _.set(modifiedConfigJson, "corePackagesConfig[0].drawer.activeGeometry", drawerFuncs[0].activeGeometry);
+     //  _.set(modifiedConfigJson, "corePackagesConfig[0].drawer.GeomTypes", drawerFuncs[0].geomTypes);
+     //  _.set(modifiedConfigJson, "corePackagesConfig[0].drawer..hideMeasurements", drawerFuncs[0].hideMeasurements);
+
+   
+    drawerModified.current = 0;
+    setIsModified(true);
+
+     handleApplyConfigChanges();
+
+
+  }
+
   function handleSave() {
     _.set(modifiedConfigJson, "corePackages", "aoi-panel");
    if (swiperDisplay.current === 1)
       _.set(modifiedConfigJson, "corePackages", ["aoi-panel","swiper"]);
+    else if (drawerDisplay.current === 1)
+      _.set(modifiedConfigJson, "corePackages", ["aoi-panel"]);
    else
       _.set(modifiedConfigJson, "corePackages", ["aoi-panel"]);
 
@@ -316,6 +693,7 @@ export function MapBuilder() {
     handleApplyConfigChanges();
   }
 
+
   function handleDelete() {
     let newItems = aoiRecord.filter((item) => item.isChecked !== true);   
     setAoiRecord([...newItems]);
@@ -329,6 +707,79 @@ export function MapBuilder() {
     const newItems = [...aoiRecord];
     aoiRecord[index].title = event.target.value;
     setAoiRecord(newItems);
+    setIsModified(true);
+  };
+
+
+  const handleItemChangeFillColor = (index: any, event: any) => {
+      console.log("in handle item change fill color",event.target.value,event.target.value.length);
+      setFillColorError(true);
+      if ((event.target.value.length > 4)) {
+
+        if ( event.target.value.match(/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/)
+           || event.target.value.match(/^rgb\((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),\s*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),\s*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\)$/)
+           || event.target.value.match(/^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*[\d.]+\s*)?\)$/)
+          ) {
+             setFillColorError(false);
+             drawerRecord[0].fillColor = event.target.value;
+             setIsModified(true);
+             setIsModified(true);
+             enqueueSnackbar('color is valid');
+            };
+           } else {
+             enqueueSnackbar('color invalid', { variant: 'error' });
+           } 
+    const newItems = [...drawerRecord];
+    console.log("stoke color",event.target.value);
+    drawerRecord[0].fillColor = event.target.value;
+    setDrawerRecord(newItems);
+    setIsModified(true);
+  };
+
+   const handleItemChangeStrokeColor = (index: any, event: any) => {
+      console.log("in handle item change fill color",event.target.value,event.target.value.length);
+      setStrokeColorError(true);
+      if ((event.target.value.length > 4)) {
+
+        if ( event.target.value.match(/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/)
+           || event.target.value.match(/^rgb\((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),\s*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),\s*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\)$/)
+           || event.target.value.match(/^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*[\d.]+\s*)?\)$/)
+          ) {
+             setStrokeColorError(false);
+             drawerRecord[0].strokeColor = event.target.value;
+             setIsModified(true);
+             setIsModified(true);
+             enqueueSnackbar('color is valid');
+            };
+           } else {
+             enqueueSnackbar('color invalid', { variant: 'error' });
+           } 
+    const newItems = [...drawerRecord];
+
+    drawerRecord[0].strokeColor = event.target.value;
+    setDrawerRecord(newItems);
+    setIsModified(true);
+  };
+
+   const handleItemChangeStrokeWidth = (index: any, event: any) => {
+      console.log("in handle item change fill color",event.target.value,event.target.value.length);
+      setStrokeWidthError(true);
+      if ((event.target.value.length >= 1)) {
+
+        if ( event.target.value.match(/^\d+(\.\d+)?$/)
+           ) {
+             setStrokeWidthError(false);
+             drawerRecord[0].strokeWidth = event.target.value;
+             setIsModified(true);
+          
+             enqueueSnackbar('width is valid');
+            };
+           } else {
+             enqueueSnackbar('width invalid', { variant: 'error' });
+           } 
+    const newItems = [...drawerRecord];
+    drawerRecord[0].strokeWidth = event.target.value;
+    setDrawerRecord(newItems);
     setIsModified(true);
   };
 
@@ -517,7 +968,7 @@ export function MapBuilder() {
         Apply State to Config File
       </Button>
 
-        <Divider sx={{ my: 2 }} >Geocore Layer</Divider>
+      <Divider sx={{ my: 2 }} >Geocore Layer</Divider>
       <FormGroup aria-label="position">
       <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 1}}>
       <FormControl> 
@@ -583,6 +1034,7 @@ export function MapBuilder() {
           defaultValue={Boolean(getProperty('map.basemapOptions.shaded')) ? 'true':'false' }
           onChange={(value) => {
             updateProperty('map.basemapOptions.shaded', JSON.parse(value)); 
+            console.log("shaded value afer update =",configJson);
           }}
           label="Base Map Shaded" placeholder="" />
 
@@ -718,6 +1170,19 @@ export function MapBuilder() {
                 }
                 handleApplyConfigChanges();
               }
+               else if((selectedvalue === "drawer") && (reason == "selectOption"))
+              {
+                //have to set color of swiper label or stays displayed even though disabled,unchecked
+                setIsModified(true);
+                 drawerRecord.push({ fillColor: "", strokeColor: '', strokeWidth: "", activeGeometry: "",geomTypes:[],hideMeasurements: false }); // added april 7 increse array
+   
+                displayLayers.current = 1;
+                drawerDisplay.current = 1;
+                setDrawerChecked(true);
+               // createLayerList();
+                handlePackageChange('corePackages', value, reason, selectedvalue);
+              //  handleApplyConfigChanges();
+              }
               setIsModified(true);
             }}
             options={corePackagesOptions}
@@ -823,6 +1288,336 @@ export function MapBuilder() {
 
             </Collapse>
         </FormGroup>
+
+
+       <FormGroup aria-label="Drawer Package"  >
+
+          {drawerDisplay.current === 1 ?
+            <label style={{ color: itemColor ,justifyContent: 'left',
+              alignItems: 'left',}}>
+              Drawer Config
+            </label>
+            : ''}
+
+           {drawerDisplay.current === 1 ?
+            <FormControlLabel id="swiper" sx={{
+              justifyContent: 'flex-end',
+              alignItems: 'baseline',
+              }}
+
+              label=""
+              disabled={isDisabled}
+              control={<Switch checked={drawerChecked} onChange={handleChangeDrawer}
+              sx={{
+                      "& .MuiInputBase-root.Mui-disabled": {
+                    },
+                      "& .MuiFormLabel-root.Mui-disabled": {
+                        color: "rgba(0, 0, 0,0.0)"
+                    },
+                      "&.Mui-disabled": {
+                    },
+                      '& .MuiFormControlLabel-label': {
+                        color: itemColor,
+                    },
+                      '& .css-1nweas-MuiFormControlLabel-root.MuiFormControlLabel-label.Mui-disabled': {
+                        color: 'rgba(0,0,0,0)',
+                    },
+                      '& .MuiFormControlLabel-root': {
+                        color: itemColor,
+                    },          
+                      "&.MuiSwitch-root .MuiSwitch-switchBase": {
+                    },
+                      "& .MuiSwitch-thumb": {
+                        color: itemColor
+                    },
+                    
+                      "& .MuiSwitch-track": {  // if dont sepecify is grey
+                         backgroundColor: "white",// works is white when collapse
+                    },
+                  }}
+
+                />}
+               labelPlacement="start"/>
+          : ''}
+
+          <Collapse in={drawerChecked}>
+
+            <Divider sx={{ my: 4 ,border:"none"}} />  
+
+              <Button onClick={handleAddDrawer} 
+              variant="contained" color="primary" size="small">
+            Add
+            </Button>
+
+            <Tooltip title="Select item(s) using item checkbox">
+              <Button onClick={(event) => {
+             //   console.log("value of fille color of delete", drawerFuncs[0].fillColor);
+              //    console.log("value of fill color of delete", inputRef3.current!.value )
+              }}
+                variant="contained"
+                color="primary"
+                size="small">
+                Delete
+              </Button>
+            </Tooltip>
+
+            <Button onClick={(event) => {console.log("in drawer save");handleDrawerSave();}}
+              variant="contained" color="primary" size="small">
+               Save
+            </Button>
+
+              <Divider sx={{ my: 2 ,border:"none"}} /> 
+
+           <Stack  justifyContent="flex-start"  alignItems="flex-start" direction="column"
+                sx={{  display: 'flex', flexDirection: 'column', 
+                justifyContent: 'flex-start' }}
+         // direction="column"
+       //  sx={{ display: 'flex', flexDirection: 'row' }}
+        //  direction={{ xs: 'column', sm: 'column' }} 
+                spacing={3}
+               >
+
+                <List style={{  flexDirection: "row",
+                               borderCollapse: 'collapse',textAlign: 'left',
+                               justifyContent: 'flex-start'
+              // , width: '100%' 
+                }}>
+
+                  {drawerRecord.map((item,index) => (
+
+<ListItem key={index}style={{display: 'flex',flexDirection:'column',justifyContent:'flex-start'  
+                      // feb 9 commented out below
+                   //    border: '1px solid black',
+                   //     borderStyle: 'solid'
+                      }}>
+
+ 
+     
+            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', gap: 2 }}>
+            <FormGroup>
+                       <TextField inputRef={inputRef3} sx={{ 
+                        display: 'flex', flexDirection: 'column', 
+                        justifyContent: 'flex-start', borderStyle: 'solid',
+                       //  maxWidth: '30px',
+                          maxHeight: '40px',
+                      //     minWidth: '360px',
+                          minWidth: '240px',
+                          minHeight: '40px'}}
+                         label="Fill Color"
+                         value={item.fillColor}
+                         error={fillColorError}
+                         onChange={(event) => handleItemChangeFillColor(index, event)} />
+                    </FormGroup>
+
+                <FormControl>
+                    {isOpen && 
+                   <div className="popover" ref={popover} id="popover">
+
+                <Button sx={{border:"none" , maxWidth: '40px', maxHeight: '20px', minWidth: '40px', minHeight: '20px'}} 
+                  variant="contained" startIcon={<Palette fontSize="small" sx={{ color: 'orange' }} />}
+                  onClick={() =>   { 
+                   const myElement = document.getElementById('popover2');
+
+                    myElement!.style.display = 'block';
+                 setDisplayColorPicker1(!displayColorPicker1);  }} >
+                </Button> 
+                 </div>
+                 }
+
+               </FormControl>
+               </Box>
+               
+              
+            < Stack   direction="column" justifyContent="flex-start">
+
+               <HexColorPicker id="popover2" color={color} onChange={(color) =>{ drawerModified.current = 1;  // color picker hidder
+                setFillColor(color);
+                setColor(color);
+                // drawerFuncs[0].fillColor = color;
+              }} 
+              
+              style={{ display: displayColorPicker1 ?  'flex': 'none'}}/> 
+
+                <Divider sx={{ my: 2 ,border:"none"}} /> 
+    
+              </Stack>
+                < Divider sx={{ my: 1 ,border:"none"}} />  
+
+                     <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+        
+                <FormControl>
+
+                       <TextField inputRef={inputRef4} sx={{ display: 'flex',
+                        flexDirection: 'column', maxHeight: '40px', justifyContent: 'flex-start',
+                    
+                            minWidth: '240px',
+                      //  minHeight: '40px', 
+                        borderStyle: 'solid'}}
+                         label="Stroke Color"
+                         value={item.strokeColor}
+                          error={strokeColorError}
+                         onChange={(event) => handleItemChangeStrokeColor(index, event)} />
+                      
+                       </FormControl>
+
+               <FormControl>
+                   {isOpen2 && 
+                   <div className="popover" ref={popover5} id="popover4">
+
+                <Button sx={{border:"none" , maxWidth: '40px', maxHeight: '20px', minWidth: '40px', minHeight: '20px'}} 
+                  variant="contained" startIcon={<Palette fontSize="small" sx={{ color: 'orange' }} />}
+                  onClick={() =>   { 
+                      const myElement = document.getElementById('popover3');
+
+                         myElement!.style.display = 'block';
+                         setDisplayColorPicker2(!displayColorPicker2);  }} >
+                </Button> 
+                 </div>
+                 }
+
+               </FormControl>
+                </Box>
+
+                < Stack   direction="column" justifyContent="flex-start">
+
+               <HexColorPicker id="popover3"  color={color} onChange={(color) =>{ drawerModified.current = 1;  // color picker hidder
+              
+                setStrokeColor(color);
+                setColor(color);
+                // drawerFuncs[0].fillColor = color;
+              }} 
+              
+              style={{ display: displayColorPicker2 ?  'flex': 'none'}}/> 
+
+                <Divider sx={{ my: 2 ,border:"none"}} /> 
+    
+              </Stack>
+           
+                <FormControl>
+                       <TextField sx={{ 
+                       display: 'flex', flexDirection: 'column', 
+                    //    justifyContent: 'flex-start',
+                       maxHeight:'40px', 
+                        minWidth: '300px',
+                    //  minWidth: '420px',
+                        minHeight: '40px',
+                 //       borderStyle: 'solid'
+                       }}
+                         label="Stroke Width"
+                         value={item.strokeWidth}
+                        // error={extentError}
+                        // onKeyDown={handleKeyDownExtent}  // called when return key is pressed
+                                error={strokeWidthError}
+                         onChange={(event) => handleItemChangeStrokeWidth(index, event)} />
+
+                           </FormControl>
+                          
+                            <Divider sx={{ my: 2 ,border:"none"}} /> 
+
+              <FormGroup aria-label="Hide Measurements" sx={{ 
+                       display: 'flex', flexDirection: 'column', 
+                    //    justifyContent: 'flex-start',
+                       maxHeight:'40px', 
+                      minWidth: '300px',
+                        minHeight: '40px',
+                  //      borderStyle: 'solid'
+                       }}>
+
+                          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+      
+           <FormControl component="fieldset" sx={{ mt: 1, gap: 1 ,
+            // maxWidth: '400px', maxHeight: '20px', 
+            /// minWidth: '400px', 
+           //  minHeight: '20px'
+             }}>
+              
+               <FormGroup aria-label="Active Geometry" sx={{ 
+                       display: 'flex', flexDirection: 'column', 
+                    //    justifyContent: 'flex-start',
+                       maxHeight:'40px', 
+                      minWidth: '300px',
+                        minHeight: '40px',
+                  //      borderStyle: 'solid'
+                       }}>
+          
+
+      
+         <SingleSelectComplete
+          options={DrawerPackageActiveGeometry}
+          defaultValue={getProperty('corePackagesConfig[0].drawer.activeGeom')}
+          onChange={(value) => {
+          updateProperty('corePackagesConfig[0].drawer.activeGeom',value);
+         //   updateProperty('corePackupdatePropertyagesConfig[0].drawer.', JSON.parse(value); 
+             setIsModified(true);
+           // console.log("shaded value afer update =",configJson,modifiedConfigJson);
+          }}
+          label="Hide Measurements" placeholder="" />
+          </FormGroup>
+            </FormControl>
+             </Box>
+
+         
+
+
+          </FormGroup>
+          <Divider sx={{ my: 2 ,border:"none"}} />  
+            <FormGroup aria-label="Geom Types" sx={{ 
+                       display: 'flex', flexDirection: 'column', 
+                    //    justifyContent: 'flex-start',
+                       maxHeight:'40px', 
+                      minWidth: '300px',
+                        minHeight: '40px',
+                  //      borderStyle: 'solid'
+                       }}>
+          <PillsAutoComplete
+            defaultValue={(getProperty('corePackagesConfig[0].drawer.geomTypes') )} 
+            onChange={(value) => {updateArrayProperty('corePackagesConfig[0].drawer.geomTypes', value);  setIsModified(true);}}
+            options={ DrawerPackageGeometryTypes}
+            label="Geometry Types" placeholder="" />
+      </FormGroup>
+
+
+           <FormControl component="fieldset" sx={{ mt: 1, gap: 1 ,
+            // maxWidth: '400px', maxHeight: '20px', 
+            /// minWidth: '400px', 
+           //  minHeight: '20px'
+             }}>
+              
+              <Divider sx={{ my: 2 ,border:"none"}} /> 
+
+               <FormGroup aria-label="Hide Measurements" sx={{ 
+                       display: 'flex', flexDirection: 'column', 
+                    //    justifyContent: 'flex-start',
+                       maxHeight:'40px', 
+                      minWidth: '300px',
+                        minHeight: '40px',
+                  //      borderStyle: 'solid'
+                       }}>
+
+            <SingleSelectComplete
+          options={drawerHideMeasurements}
+          defaultValue={Boolean(getProperty('corePackagesConfig[0].drawer.hideMeasurements')) ? 'true':'false' }
+          onChange={(value) => {
+            updateProperty('corePackagesConfig[0].drawer.hideMeasurements', JSON.parse(value)); 
+             setIsModified(true);
+           // console.log("shaded value afer update =",configJson,modifiedConfigJson);
+          }}
+          label="Hide Measurements" placeholder="" />
+         
+          
+        </FormGroup>
+            </FormControl>
+           
+                       <br></br>
+                     </ListItem>
+
+                     ))}
+                </List>
+              </Stack>
+
+                </Collapse>
+        </FormGroup>
+
         <FormGroup aria-label="Layer List"  >
         {aoiDisplay.current === 2 ? 
           <label style={{ color: itemColor ,justifyContent: 'left',
@@ -918,27 +1713,21 @@ export function MapBuilder() {
                           className="form-check-input"
                           onChange = {(event)  => handleChangeChecked(event, index)}/>
 
-                       <TextField style={{ display: 'flex', flexDirection: 'column',
-                         borderStyle: 'solid',maxWidth: '30px', maxHeight: '40px', minWidth: '390px', minHeight: '40px' 
-                         }}
+                       <TextField sx={{ display: 'flex', flexDirection: 'column', borderStyle: 'solid', maxWidth: '30px', maxHeight: '40px', minWidth: '390px', minHeight: '40px', '& .MuiInputBase-input': { textAlign: 'left' } }}
                          label="Title"
                          value={item.title}
                          onChange={(event) => handleItemChangeTitle(index, event)} />
 
                        <Divider sx={{ my: 2 }}/>
 
-                       <TextField style={{ display: 'flex', flexDirection: 'column', maxHeight: '40px',
-                         minWidth: '390px', minHeight: '40px', borderStyle: 'solid'
-                         }}
+                       <TextField sx={{ display: 'flex', flexDirection: 'column', maxHeight: '40px', minWidth: '390px', minHeight: '40px', borderStyle: 'solid', '& .MuiInputBase-input': { textAlign: 'left' } }}
                          label="Url"
                          value={item.url}
                          onChange={(event) => handleItemChangeUrl(index, event)} />
 
                        <Divider sx={{ my: 2 }} />
 
-                       <TextField style={{display: 'flex', flexDirection: 'column',maxHeight:'40px', minWidth: '390px', minHeight: '40px',
-                         borderStyle: 'solid'
-                         }}
+                       <TextField sx={{ display: 'flex', flexDirection: 'column', maxHeight:'40px', minWidth: '390px', minHeight: '40px', borderStyle: 'solid', '& .MuiInputBase-input': { textAlign: 'left' } }}
                          label="Extent format [xmin, ymin, xmax, y max]"
                          value={item.extent}
                          error={extentError}

@@ -10,8 +10,17 @@ export const DEFAULT_CONFIG_FILE = '01-basemap-LCC-TLS.json';
 export const eventLoopCounter = { current: 0 };
 export const aoiModified = { current: 0 };
 export const aoiDisplay = { current: 0 };
+export const drawerModified = { current: 0 };
+export const drawerDisplay = { current: 0 };
 export const swiperDisplay = { current: 0 };
 export const Language = { english: true };  // save language state
+export const fillColor3 = { current: "0"};
+
+export const strokeColor3 = { current: "0" };
+
+export const strokeWidth3= { current: "0" };
+export const colorClickedOutside= { current:  false};
+export const colorClickedOutside2= { current:  false};
 
 export const DEFAULT_CONFIG = {
   map: {
@@ -156,7 +165,8 @@ export const navBarOptions: ListOptionType[] = [
   { title: 'Fullscreen', value: 'fullscreen' },
   { title: 'Home', value: 'home' },
   { title: 'Location', value: 'location' },
-  { title: 'Basemap Select', value: 'basemap-select' }
+  { title: 'Basemap Select', value: 'basemap-select' },
+   { title: 'Drawer', value: 'drawer' }
 ];
 
 export const themeOptions: ListOptionType[] = [
@@ -171,13 +181,43 @@ export const languageOptions: ListOptionType[] = [
 ];
 
 export const corePackagesOptions: ListOptionType[] = [
-  { title: 'Time Slider', value: 'time-slider' },
+  { title: 'Drawer', value: 'drawer' },
   { title: 'Geochart', value: 'geochart' },
-  { title: 'Swiper', value: 'swiper' }
+  { title: 'Swiper', value: 'swiper' },
+  { title: 'Time Slider', value: 'time-slider' }
 ];
 
 export const CorePackagesConfig: ListOptionType[] = [
   { title: 'swiper', value: 'swiper' },
+];
+
+export const DrawerPackageActiveGeometry: ListOptionType[] = [
+  { title: 'Point', value: 'Point' },
+  { title: 'Text', value: 'Text' },
+  { title: 'LineString', value: 'LineString' },
+  { title: 'Polygon', value: 'Polygon' },
+  { title: 'Rectangle', value: 'Rectangle' },
+  { title: 'Circle', value: 'Circle' },
+  { title: 'Star', value: 'Star' }
+];
+
+export const DrawerPackageGeometryTypes: ListOptionType[] = [
+  { title: 'Point', value: 'Point' },
+  { title: 'Text', value: 'Text' },
+  { title: 'LineString', value: 'LineString' },
+  { title: 'Polygon', value: 'Polygon' },
+  { title: 'Rectangle', value: 'Rectangle' },
+  { title: 'Circle', value: 'Circle' },
+  { title: 'Star', value: 'Star' }
+];
+
+export const drawerHideMeasurements: ListOptionType[] = [
+  { title: 'True', value: 'true' },
+  { title: 'False', value: 'false'}
+];
+
+export const DrawerPackageVersion: ListOptionType[] = [
+  { title: '1.0', value: 1.0 }
 ];
 
 export const SwiperPackageOrientation: ListOptionType[] = [
