@@ -11,7 +11,6 @@ import { EventsLog } from './EventsLog';
 import { LegendLayerStatusTable } from './LegendLayerStatusTable';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 
-
 export default function DrawerTabs() {
   const cgpvContext = useContext(CGPVContext);
 
@@ -26,38 +25,35 @@ export default function DrawerTabs() {
     setSelectedTab(newValue);
   };
 
-
   if (isLoading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
       <CircularProgress />
     </Box>;
   }
 
-
   return (
-    <Box sx={{ width: '100%', typography: 'body1', minHeight: {md: '100vh'} }}>
-      <TabContext value={selectedTab}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleTabChange} aria-label="handling tabs change" variant="scrollable" scrollButtons="auto">
-            <Tab icon={<ListAltIcon />} label="Map Builder" value="config-builder" />
-            <Tab icon={<SettingsIcon />} label="API Functions" value="interactive-map" />
-            <Tab icon={<BallotIcon />} label="Layers Status" value="layers-status" />
-            <Tab icon={<RunCircleIcon />} label="Events Log" value="events-log" />
-          </TabList>
-        </Box>
-        <TabPanel value="interactive-map" >
-          <ApiFunctionsTab />
-        </TabPanel>
-        <TabPanel value="config-builder">
-          <MapBuilder />
-        </TabPanel>
-        <TabPanel value="layers-status">
-          <LegendLayerStatusTable />
-        </TabPanel>
-        <TabPanel value="events-log">
-          <EventsLog />
-        </TabPanel>
-      </TabContext>
+
+  <TabContext value={selectedTab}>
+    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <TabList onChange={handleTabChange} aria-label="handling tabs change" variant="scrollable" scrollButtons="auto">
+        <Tab icon={<ListAltIcon />} label="Map Builder" value="config-builder" />
+        <Tab icon={<SettingsIcon />} label="API Functions" value="interactive-map" />
+        <Tab icon={<BallotIcon />} label="Layers Status" value="layers-status" />
+        <Tab icon={<RunCircleIcon />} label="Events Log" value="events-log" />
+      </TabList>
     </Box>
+    <TabPanel value="interactive-map" >
+      <ApiFunctionsTab />
+    </TabPanel>
+    <TabPanel value="config-builder">
+      <MapBuilder />
+    </TabPanel>
+    <TabPanel value="layers-status">
+      <LegendLayerStatusTable />
+    </TabPanel>
+    <TabPanel value="events-log">
+      <EventsLog />
+    </TabPanel>
+    </TabContext>
   );
 }

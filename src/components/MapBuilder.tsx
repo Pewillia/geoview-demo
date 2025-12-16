@@ -19,7 +19,7 @@ import { useContext, useState, useReducer, useRef,useEffect,
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash';
 import PillsAutoComplete from './PillsAutoComplete';
-import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,
+import {aoiModified,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
   corePackagesOptions,aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language
 } from '@/constants';
@@ -37,7 +37,8 @@ export function MapBuilder() {
   }
 
   const { mapId } = cgpvContext;
-  const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
+  const { configJson, handleApplyStateToConfigFile, handleConfigFileChange, 
+    handleConfigJsonChange, configFilePath, mapWidth, mapHeight, setMapWidth, setMapHeight } = cgpvContext;
   const [modifiedConfigJson, setModifiedConfigJson] = useState<object>(configJson);
   const [isModified, setIsModified] = useState<boolean>(false);
   const [isEn, setEn] = useState<boolean>(Language.english);
@@ -67,15 +68,8 @@ export function MapBuilder() {
   const [extentError, setExtentError] = useState(false);
   const [aoiRecordIndex, setAoiRecordIndex] = useState(-1);
   const [itemColor, setItemColor] = useState('#1976d2');
- 
-  useEffect(() => {
-    if (document.getElementById(mapId) !== null) { 
-      if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
-        setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
-        eventLoopCounter.current = 1;
-      }
-    };
-  }, []);
+  const mapWidth1= useRef<HTMLTextAreaElement>(null);
+  const refAppply= useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (cgpv.api.hasMapViewer(mapId)) {
@@ -91,6 +85,14 @@ export function MapBuilder() {
   const handleChangeSwiper = () => {
     setSwiperChecked((prev) => !prev);
   };
+
+  const calculateMapWidth = () => {
+    if (mapWidth1.current) {  // update width text field,mapWidth is a hook and is a update delay
+       panelSize.current.toString().includes('.') ?
+       mapWidth1.current!.value =panelSize.current.toString().substring(0, (panelSize.current.toString().indexOf('.')))
+         : mapWidth1.current!.value =(panelSize.current.toString()+"px");
+    }
+  }
 
   const _updateConfigProperty = (property: string, value: any) => {
     const newConfig = {...modifiedConfigJson};
@@ -414,7 +416,7 @@ export function MapBuilder() {
   }
 
   return(
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' ,overflow: "auto"}}>
       <FormControl component="fieldset" sx={{ mt: 1, gap: 3 }}>
         <SingleSelectComplete
           options={languageOptions}
@@ -424,8 +426,8 @@ export function MapBuilder() {
            (isEn) ? Language.english = false : Language.english= true;
            setEn(!isEn);
           }}
-        label="Change Language" placeholder="" />
-      <SingleSelectComplete
+          label="Change Language" placeholder="" />
+        <SingleSelectComplete
           options={CONFIG_FILES_LIST}
           defaultValue={configFilePath}
           applyGrouping={true}
@@ -440,64 +442,75 @@ export function MapBuilder() {
       </FormControl>
 
       <FormGroup aria-label="position">
-          <FormLabel component="legend" sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
+        <FormLabel component="legend" sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 3 }}>&nbsp;&nbsp;&nbsp;Map Size in px</FormLabel>
           <Box sx={{ display: 'flex', flexDirection: 'row', mt: 1, gap: 4 }}>
             <FormControl>
-            <TextField
-                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
-                error={!isMapSizeValid}
-                size="small"
-                id="map-width"
-                label="Width"
-                defaultValue={mapWidth.substring(0, mapWidth.length - 2)}  
-                onChange={(event) => {
-                   if (event.target.value.match(/^\d+$/)) {
-                     setMapSizeValid(true);
-                     setMapWidth(event.target.value + "px");
-                   }
+              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                <TextField inputRef={mapWidth1}
+                  style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '120px', minHeight: '30px' }}
+                  error={!isMapSizeValid}
+                  size="small"
+                  id="map-width"
+                  label="Width"
+                  defaultValue={mapWidth.replace("px", "")}
+                  onChange={(event) => {
+                    if (event.target.value.match(/^\d+$/)) {
+                      setMapSizeValid(true);
+                      setMapWidth(event.target.value + "px");
+                    }
+                    else {
+                      setMapSizeValid(false);
+                     }
+                     setIsModified(true);
+                  }
+                }/>
+
+                <TextField
+                  style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
+                  error={!isMapSizeValid}
+                  size="small"
+                  id="map-height"
+                  label="Height"
+                  defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
+                  onChange={(event) => {
+                    if (event.target.value.match(/^\d+$/)) {
+                      setMapSizeValid(true);
+                      setMapHeight(event.target.value + "px");
+                    }
                    else {
                       setMapSizeValid(false);
                    }
-                   setIsModified(true);
+                     setIsModified(true);
+                   }
                   }
-                }/>
-            </FormControl>
-          <FormControl>
-            <TextField
-                style={{ maxWidth: '120px', maxHeight: '30px', minWidth: '90px', minHeight: '30px' }}
-                error={!isMapSizeValid}
-                size="small"
-                id="map-height"
-                label="Height"
-                defaultValue={mapHeight.substring(0, mapHeight.length - 2)}
-                onChange={(event) => {
-                   if (event.target.value.match(/^\d+$/)) {         
-                     setMapSizeValid(true);
-                     setMapHeight(event.target.value + "px");
-                   }
-                   else {
-                     setMapSizeValid(false);
-                   }
+                />
+
+                <Button ref={refAppply}
+                  style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '50px', minHeight: '40px' }}
+                  onClick={(event) => { (isMapSizeValid) ? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
+                  }}
+                  variant="contained" color="primary" size="small">
+                    Apply
+                </Button>
+
+                <Button 
+                  style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
+                  onClick={(event) => {
+                    if (mapWidth1.current) {  // update width text field,mapWidth is a hook and is a update delay
+                       calculateMapWidth();
+                    }
+                    setMapSizeValid(true)
+                    setMapWidth(mapWidth1.current!.value);
                     setIsModified(true);
-                  }
-                }
-             />
+                    setTimeout(() => {refAppply.current!.click()}, 1000);  //works with the d
+                  }}
+                  variant="contained" color="primary" size="small">
+                  Fit
+                </Button>
+            </Stack>
           </FormControl>
-          <FormControl>
-          <Button 
-           style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '100px', minHeight: '40px' }}
-           onClick={(event) => {
-             (isMapSizeValid) ? handleApplyStateToConfigFile() : enqueueSnackbar('Map size is invalid');
-           }
-          }
-
-        variant="contained" color="primary" size="small">
-        apply size
-        </Button>
-            </FormControl>
         </Box>
-
-      </FormGroup>
+      </FormGroup>   
 
       <Divider sx={{ my: 2 }} />
 
@@ -539,7 +552,7 @@ export function MapBuilder() {
            }
         />
           </FormControl>
-          <FormControl>
+        <FormControl>
         <Button variant="contained" color="primary" 
             style={{ maxWidth: '40px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
           onClick={(event) => {
@@ -552,7 +565,6 @@ export function MapBuilder() {
           ADD
             </Button>
           </FormControl>
-          
         </Box>
         </FormGroup>
 
@@ -766,8 +778,11 @@ export function MapBuilder() {
                         color: itemColor
                     },
                       "& .MuiSwitch-track": {  // if dont sepecify is grey
-                         backgroundColor: "white",// works is white when collapse
+                         backgroundColor: itemColor// works is white when collapse
                     },
+                      '& .Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: itemColor // Example: Orange color when checked
+                    }
                   }}
 
                 />}
@@ -862,8 +877,11 @@ export function MapBuilder() {
                         color: itemColor
                     },
                       "& .MuiSwitch-track": {  // if dont sepecify is grey
-                        backgroundColor: "white",// works is white when collapse
+                        backgroundColor: itemColor// works is white when collapse
                     },
+                      '& .Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: itemColor // Example: Orange color when checked
+                    }
                   }}/> 
               }
               labelPlacement="start"/>

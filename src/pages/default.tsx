@@ -5,7 +5,7 @@ import GeoViewPage from '../components/GeoViewPage';
 function DefaultPage() {
   return (
     <GeoViewPage>
-      <GeoViewMap />
+     <GeoViewMap />
     </GeoViewPage>
   );
 }
