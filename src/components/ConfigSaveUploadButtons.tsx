@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Box, Button, Snackbar } from "@mui/material";
+import { Box, Button, Snackbar, Tooltip, } from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { CGPVContext } from "../providers/cgpvContextProvider/CGPVContextProvider";
 import DownloadIcon from '@mui/icons-material/Download';
@@ -22,7 +22,9 @@ export const ConfigSaveUploadButtons = (props: ConfigSaveUploadButtonsProps) => 
 
   const { configJson, handleConfigJsonChange } = cgpvContext;
 
-  const { showCopy = false, showDownload = true, showUpload = true } = props;
+  const { showCopy = false
+
+  } = props;
 
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState<string>('');
@@ -75,17 +77,17 @@ export const ConfigSaveUploadButtons = (props: ConfigSaveUploadButtonsProps) => 
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexDirection: 'row',gap: 1 }}>
-        {showCopy && <Button onClick={handleCopy} variant="contained" color="primary" size="small" startIcon={<ContentCopyIcon />}>
-          Copy to Clipboard
-        </Button>}
-        {showDownload && <Button onClick={handleDownload} variant="contained" color="primary"  size="small" startIcon={<DownloadIcon />}>
-          Save
-        </Button>}
-        {showUpload && <Button component="label" variant="contained" color="primary"  size="small" startIcon={<UploadFileIcon/>}>
-          Upload
+      <Box sx={{ display: 'flex', flexDirection: 'row',gap: 1 ,justifyContent: 'left'}}>
+        {showCopy &&
+        <Button onClick={handleCopy} variant="contained" color="primary" size="small" startIcon={<ContentCopyIcon />}>
+           </Button>
+         }
+        {  <Tooltip title="Download Config file"><Button onClick={handleDownload} variant="contained" color="primary"  size="small" startIcon={<DownloadIcon />}> 
+        </Button></Tooltip>}
+        {<Tooltip title="Upload Config file">
+          <Button component="label" variant="contained" color="primary"  size="small" startIcon={<UploadFileIcon/>}>
           <input type="file" accept=".json" hidden onChange={handleUpload} /> 
-        </Button>}
+        </Button></Tooltip>}
         <ConfigTextEditor />
       </Box>
       <Snackbar

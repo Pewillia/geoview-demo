@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { CGPVContext } from '../providers/cgpvContextProvider/CGPVContextProvider';
-import { Box, Button, Modal } from '@mui/material';
+import { Box, Button, Modal, Tooltip} from '@mui/material';
 import { useSnackbar } from '@/providers/snackbarProvider';
 import DataObjectIcon from '@mui/icons-material/DataObject';
 import { CopyToClipboardButton } from './CopyToClipboardButton';
@@ -94,9 +94,9 @@ export function ConfigTextEditor() {
 
   return (
     <>
+     <Tooltip title="Edit Config json file">
       <Button component="label" variant="contained" color="primary" size="small" onClick={handleOpenModal} startIcon={<DataObjectIcon />}>
-        Edit JSON
-      </Button>
+      </Button></Tooltip>
       <Modal
         open={modalIsOpen}
         onClose={handleCloseModal}

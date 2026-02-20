@@ -28,14 +28,19 @@ export default function PillsAutoComplete(props: PillsAutoCompleteProps) {
     onChange?.(newValue, reason, detail.option.value);
   };
  
+  // Filter out the options that are already in the selectedOptions state
+  const availableOptions = options.filter(
+    (option) => option.group !== "1");
   
    return (
     <Autocomplete
       multiple
       id="checkboxes-tags-demo"
       size="small"
-      options={options}
+     // options={options}
       disableCloseOnSelect
+      options={availableOptions}
+      getOptionDisabled={(option) => option.group === "1"} // test geb2 to disanle options mot used in packages, works
       defaultValue={options.filter((option) => defaultValue?.includes(option.value))}
       isOptionEqualToValue={(option, value) => option.value === value.value}
       getOptionLabel={(option) => option.title}
