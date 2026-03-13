@@ -10,7 +10,6 @@ import { ListOptionType } from '../types';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-
 interface PillsAutoCompleteProps {
   options: ListOptionType[];
   defaultValue?: any[];
@@ -21,17 +20,17 @@ interface PillsAutoCompleteProps {
 
 export default function PillsAutoComplete(props: PillsAutoCompleteProps) {
 
-  const { options, defaultValue, onChange, label, placeholder } = props;
+const { options, defaultValue, onChange, label, placeholder } = props;
 
-  const handleOnChange = (event: React.SyntheticEvent, value: ListOptionType[], reason: any,detail: any) => {
+const handleOnChange = (event: React.SyntheticEvent, value: ListOptionType[], reason: any,detail: any) => {
     const newValue = value.map((v) => v.value); //oriingally this
     onChange?.(newValue, reason, detail.option.value);
   };
- 
-  // Filter out the options that are already in the selectedOptions state
-  const availableOptions = options.filter(
+
+  // Filter out the options that are already in the selectedOptions state of Ui tab to displau just packages
+const availableOptions = options.filter(
     (option) => option.group !== "1");
-  
+
    return (
     <Autocomplete
       multiple

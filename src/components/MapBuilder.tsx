@@ -2,17 +2,22 @@
 import {Box, Button, Divider, FormControl, FormGroup, FormLabel, Switch, Tabs, Tab,TextField,Tooltip, List, ListItem, ListItemText, Stack } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useContext, useState, useReducer, useRef,useEffect, } from 'react';
+import { useContext, useState, useReducer, useRef,useEffect, useCallback} from 'react';
 import { CGPVContext } from '@/providers/cgpvContextProvider/CGPVContextProvider';
 import _ from 'lodash'; 
 import PillsAutoComplete from './PillsAutoComplete';
-import {aoiModified,eventLoopCounter,SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,currentTab,appBarOptions2,
+import {aoiModified,
+  SwiperPackageOrientation,SwiperPackagekeyboardOffset,layerOptions,panelSize,currentTab,appBarOptions2,
   componentsOptions, basemapShading, basemapLabelling, footerTabslist, languageOptions, navBarOptions, basemapOptions, appBarOptions, mapInteractionOptions, mapProjectionOptions, zoomOptions, themeOptions, CONFIG_FILES_LIST,
- aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language,footerTabsList2, navBarOptions2, corePackagesOptions} from '@/constants';
+ aoiDisplay,swiperDisplay, GEOVIEW_CORE_URL, Language,footerTabsList2, navBarOptions2, corePackagesOptions,DrawerPackageActiveGeometry,DrawerPackageGeometryTypes,
+  drawerModified,drawerDisplay,drawerHideMeasurements,DrawerPackageVersion,colorClickedOutside,colorClickedOutside2
+} from '@/constants';
 import SingleSelectComplete from './SingleSelectAutoComplete';
 import { ConfigSaveUploadButtons } from './ConfigSaveUploadButtons';
 import { useSnackbar } from '@/providers/snackbarProvider';
 import React from 'react';
+import { HexColorPicker } from "react-colorful";
+import {Palette} from '@mui/icons-material';
 
 export var URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`;
 
@@ -39,18 +44,24 @@ export function MapBuilder() {
   const [aoiChecked, setAoiChecked] = useState(false);
   const [swiperChecked, setSwiperChecked] = useState(false);
   const [, forceUpdate] = useReducer(x => x + 1, 0);
-  const displayLayers = useRef(0); 
-
-   interface AoiFuncItem {
-    id: number;
-    title: string;
-    url: string;
-    extent: string;
-    isChecked: boolean;
-  }
-
+  const displayLayers = useRef(0);
+  const [drawerChecked, setDrawerChecked] = useState(false);
+  const drawerFuncs: drawerFuncItem[] = [];
+  const [color, setColor] = useState("#aabbcc");
+  const [ displayColorPicker1,setDisplayColorPicker1] = useState(false);
+  const [ displayColorPicker2,setDisplayColorPicker2] = useState(false);
+  const [drawerRecord, setDrawerRecord] = useState(drawerFuncs);
+  const popover = useRef<HTMLDivElement>(null);
+  const popover5 = useRef<HTMLDivElement | null>(null);
+  const [isOpen, toggle] = useState(true);
+  const [isOpen2, toggle2] = useState(true);
+  const close = useCallback(() => toggle(false), []);
+  const close2 = useCallback(() => toggle2(false), []);
+  const [fillColorError, setFillColorError] = useState(false);
+  const [strokeColorError, setStrokeColorError] = useState(false);
+  const [strokeWidthError, setStrokeWidthError] = useState(false);
   const [tabValue, setTabValue] = React.useState(0); //tab value
-  const aoiFuncs: AoiFuncItem[] = []
+  const aoiFuncs: AoiFuncItem[] = [];
   const [aoiRecord, setAoiRecord] = useState(aoiFuncs);
   const [extentValue, setExtentValue] = useState('');
   const [extentError, setExtentError] = useState(false);
@@ -58,16 +69,30 @@ export function MapBuilder() {
   const [itemColor, setItemColor] = useState('#1976d2');
   const mapWidth1= useRef<HTMLTextAreaElement>(null);
   const refAppply= useRef<HTMLButtonElement>(null);
-
   const { legendLayerStatusList } = cgpvContext;
+  const inputRef3 = useRef<HTMLInputElement>(null);
+  const inputRef4 = useRef<HTMLInputElement>(null);
+
+  interface AoiFuncItem {
+    id: number;
+    title: string;
+    url: string;
+    extent: string;
+    isChecked: boolean;
+  }
+
+  interface drawerFuncItem {
+    fillColor: string;
+    strokeColor: string;
+    strokeWidth: string;
+    activeGeometry: string;
+    geomTypes: string[];
+    hideMeasurements :boolean;
+    version: string;
+  }
 
   useEffect(() => {
-    setTabValue(currentTab.current);  // set tab value to last tab used in case of a save state reinitialization
-    if (document.getElementById(mapId) !== null) { 
-      if (eventLoopCounter.current === 0) { // convert full screen in % to px on reinitialize
-         setMapWidth((window.innerWidth - (435 +7)).toString() + "px");
-       }
-    }
+    setTabValue(currentTab.current);  // set tab value to last tab used in case of a save state reinitializatio
   }, []);
 
   useEffect(() => {
@@ -79,10 +104,17 @@ export function MapBuilder() {
 
   useEffect(() => {
      if (aoiDisplay.current === 2) {
-        setAoiChecked(true); 
-        forceUpdate();
+      setAoiChecked(true); 
+      forceUpdate();
      }
   }, [aoiDisplay.current]);
+
+  useEffect(() => {
+     if (drawerDisplay.current === 1) {
+       setDrawerChecked(true); 
+       forceUpdate();
+     }
+  }, [drawerDisplay.current]);
 
   useEffect(() => {
     if (cgpv.api.hasMapViewer(mapId)) {
@@ -90,6 +122,66 @@ export function MapBuilder() {
       (Language.english ) ? myMap1.setLanguage('en', true) : myMap1.setLanguage('fr', true);
     };
   }, []);
+
+  useEffect(() => {
+    document.addEventListener('click', function(event) {
+      // Do nothing if `mousedown` or `touchstart`
+    const myElement = document.getElementById('popover2');
+    if (myElement || (myElement !== null)){
+      const inputElement = event.target as HTMLInputElement;
+      if ((!myElement!.contains(inputElement)) ) {
+        if (colorClickedOutside.current) {
+          myElement!.style.display = 'none';
+          colorClickedOutside.current=false;
+        }
+      }
+      else {
+      colorClickedOutside.current=true;
+      }
+    }
+    });
+  }, [popover, close]);
+
+  useEffect(() => {
+    document.addEventListener('click', function(event) {
+    // Do nothing if `mousedown` or `touchstart` started inside ref element
+    const myElement2 = document.getElementById('popover3');
+    if ( myElement2 || ( myElement2 !== null ) ){
+      const inputElement2 = event.target as HTMLInputElement;
+      if (( !myElement2!.contains(inputElement2) ) ) {
+        if ( colorClickedOutside2.current ) { 
+          myElement2!.style.display = 'none';
+          colorClickedOutside2.current=false;
+        }
+       }
+      else {
+        colorClickedOutside2.current=true;
+      }
+    }
+   });
+  }, [popover5, close2]);
+
+  const handleChangeDrawer = () => {
+    setDrawerChecked((prev) => !prev);
+  };
+
+  const setFillColor= (color: string) => {
+    displayLayers.current = 1;
+    drawerModified.current = 1;
+    inputRef3.current!.value = color;
+    drawerRecord[0].fillColor = color;
+    _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.fillColor', color);
+    setIsModified(true);
+  }
+
+  const setStrokeColor= (color: string) => { 
+    displayLayers.current = 1;
+    drawerModified.current = 1;
+    inputRef4.current!.value= color;
+    drawerRecord[0].strokeColor = color;
+    _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeColor', color);   
+    setIsModified(true);
+  }
 
   const handleChangeAoi = () => {  setAoiRecord(aoiFuncs);
     setAoiChecked((prev) => !prev);
@@ -122,11 +214,11 @@ export function MapBuilder() {
       for (var i in featureInfoLayerSet) {
         m.push({ title: '', value: '', group: "" });
         if (featureInfoLayerSet.hasOwnProperty(i)) {
-            m[i3].value = featureInfoLayerSet[i].layerPath;
-            m[i3].title = featureInfoLayerSet[i].layerName;
-            m[i3].group = "n";
-            layerOptions.push(m[i3]);
-            i3++;
+          const LayerPathSet = myMap1.layer.getLayerEntryConfig(featureInfoLayerSet[i].layerPath);
+          m[i3].value = featureInfoLayerSet[i].layerPath;
+          m[i3].title = LayerPathSet.layerEntryProps.geoviewLayerConfig.geoviewLayerName+"/"+featureInfoLayerSet[i].layerPath; 
+          layerOptions.push(m[i3]);
+          i3++;
          }
       }
     }
@@ -134,7 +226,52 @@ export function MapBuilder() {
   }
 
   const getProperty = (property: string, defaultValue = undefined) => {
-    
+      if (property === "navBar") {
+      let packages: any = _.get(configJson, property);
+      for (var i in packages) {
+         if (packages[i] === "drawer") {
+          if (displayLayers.current === 0) {  // first time thru on reload
+            drawerDisplay.current = 1; 
+            drawerModified.current = 0;
+          }
+          if (drawerModified.current === 0) { // like useRef, not modified if reloads  
+            while (drawerRecord.length > 0) {
+              drawerRecord.pop();
+            }
+            let fillColor = 'corePackagesConfig[0].drawer.style.fillColor';
+            let strokeColor = 'corePackagesConfig[0].drawer.style.strokeColor';
+            let strokeWidth = 'corePackagesConfig[0].drawer.style.strokeWidth';
+            let activeGeometry= 'corePackagesConfig[0].drawer.activeGeometry'
+            let geomTypes= 'corePackagesConfig[0].drawer.geomTypes';
+            let hideMeasurements = 'corePackagesConfig[0].drawer.hideMeasurements';
+            let version = 'corePackagesConfig[0].drawer.version';
+            drawerRecord.push({version:"", fillColor: "", strokeColor: '', strokeWidth: "", activeGeometry: "",geomTypes:[],hideMeasurements: false });
+            drawerRecord[0].version = (_.get(configJson, version));
+            drawerRecord[0].fillColor = (_.get(configJson, fillColor));
+            drawerRecord[0].strokeColor = (_.get(configJson, strokeColor));
+            drawerRecord[0].strokeWidth = (_.get(configJson, strokeWidth));
+            drawerRecord[0].activeGeometry= (_.get(configJson, activeGeometry));
+            drawerRecord[0].geomTypes =(_.get(configJson, geomTypes));
+            drawerRecord[0].hideMeasurements = (_.get(configJson, hideMeasurements));
+            drawerRecord[0].version = (_.get(configJson, version));
+          };
+       };
+      };
+    }; 
+
+     if (property === "corePackages") 
+      { let packages: any = _.get(configJson, property);
+        for (var i in packages) {
+          if (packages[i] === "swiper") {
+            setTimeout(createLayerList, 5000);
+            if (displayLayers.current === 0) {  // first time thru on reload
+              displayLayers.current = 1;
+              swiperDisplay.current = 1;
+              setSwiperChecked(true);
+             };
+           };
+          };
+      }; 
     if (property === "corePackages") {
       let packages: any = _.get(configJson, property);
       for (var i in packages) {
@@ -145,13 +282,10 @@ export function MapBuilder() {
         };
       };
     };
-
    if (property === "appBar.tabs.core") { //changed works with corePackages
-   
       let packages: any = _.get(configJson, property);
       for (var i in packages) {
          if (packages[i] === "aoi-panel") {
-       
            let maxlayerId: any = _.get(configJson, "corePackagesConfig[0].aoi-panel.aoiList");
            if ((displayLayers.current === 0)) { //works displays aoi list when ony swiper in a file   
              displayLayers.current = 1; //0 if loading from a file on iniial load
@@ -248,7 +382,7 @@ export function MapBuilder() {
 
     if ((selectedvalue === "swiper") && (reason !== "removeOption"))  {
       _.set(modifiedConfigJson, "corePackages", ["swiper"]);
-      handleApplyConfigChanges();  // feb 16
+      handleApplyConfigChanges();
     };
 
     if ((selectedvalue === "aoi-panel") && (reason !== "removeOption")) {   
@@ -257,6 +391,87 @@ export function MapBuilder() {
       setIsModified(true);
     };
   }
+
+  function handleDrawerSave() {  //hideMeasurement,activeGeom,GeomType set in form by updateProperty that modifies ModifiedCOnfigJson
+   _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.fillColor', drawerRecord[0].fillColor);
+   _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeColor', drawerRecord[0].strokeColor);
+   _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeWidth',Number(drawerRecord[0].strokeWidth));
+   drawerModified.current = 0;
+   setIsModified(true);
+   handleApplyConfigChanges();    
+}
+
+  const validateColor = ( color: any) => {
+    return( Boolean( color.match(/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/)
+           || color.match(/^rgb\((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),\s*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),\s*(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\)$/)
+           || color.match(/^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(?:,\s*[\d.]+\s*)?\)$/) ) );
+ };
+
+  const handleItemChangeFillColor = ( event: any) => {
+      displayLayers.current = 1;
+      drawerModified.current = 1;
+      setFillColorError(true);
+      if ((event.target.value.length > 4)) {
+        if ( validateColor(event.target.value))
+          {  setFillColorError(false);
+             drawerRecord[0].fillColor = event.target.value;
+             _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.fillColor', drawerRecord[0].fillColor);
+             setIsModified(true);
+             setIsModified(true);
+             enqueueSnackbar('color is valid');
+            };
+           } else {
+             enqueueSnackbar('color invalid', { variant: 'error' });
+           }
+  const newItems = [...drawerRecord];
+    drawerRecord[0].fillColor = event.target.value;
+    setDrawerRecord(newItems);
+    setIsModified(true);
+  };
+
+  const handleItemChangeStrokeColor = ( event: any) => {
+    displayLayers.current = 1;
+    drawerModified.current = 1;
+    setStrokeColorError(true);
+    if ((event.target.value.length > 4)) {
+      if (validateColor(event.target.value ))
+        {  setStrokeColorError(false);
+           drawerRecord[0].strokeColor = event.target.value;
+           _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeColor', drawerRecord[0].strokeColor);
+           setIsModified(true);
+           setIsModified(true);
+           enqueueSnackbar('color is valid');
+        };
+    } 
+    else {
+      enqueueSnackbar('color invalid', { variant: 'error' });
+    }
+    const newItems = [...drawerRecord];
+    drawerRecord[0].strokeColor = event.target.value;
+    setDrawerRecord(newItems);
+    setIsModified(true);
+  };
+
+   const handleItemChangeStrokeWidth = (index:number, event: any) => {
+    setStrokeWidthError(true);
+    displayLayers.current = 1;
+    drawerModified.current = 1;
+    if (event.target.value.match(/^\d+(\.\d+)?$/))
+      {  setStrokeWidthError(false);
+         drawerRecord[0].strokeWidth = event.target.value;
+        _.set(modifiedConfigJson, 'corePackagesConfig[0].drawer.style.strokeWidth',Number(drawerRecord[0].strokeWidth));
+        setIsModified(true);
+        enqueueSnackbar('width is valid');
+     }
+     else {
+        enqueueSnackbar('width invalid', { variant: 'error' });
+    }
+    const newItems = [...drawerRecord];
+    drawerRecord[index].strokeWidth = event.target.value;
+    setDrawerRecord(newItems);
+    forceUpdate;
+    setIsModified(true);
+  };
 
   const handleChangeChecked = (event: any, id: number) => {
     const newItems = [...aoiRecord];
@@ -275,7 +490,7 @@ export function MapBuilder() {
     setAoiRecord(newList);
     forceUpdate();
     setIsModified(true);
-    setAoiRecordIndex(aoiRecordIndex + 1); 
+    setAoiRecordIndex(aoiRecordIndex + 1);
   };
 
   function handleSave() {
@@ -308,7 +523,7 @@ export function MapBuilder() {
     aoiModified.current = 0;
     setIsModified(true);
 
-    if (aoiRecord.length === 0) {  // deleted last record 
+    if (aoiRecord.length === 0) {  // deleted last record
       if (swiperDisplay.current === 1)
         _.set(modifiedConfigJson, "corePackages", ["swiper"]);
       else {
@@ -319,7 +534,6 @@ export function MapBuilder() {
         aoiDisplay.current = 0;
       }
     }
-    //handleApplyConfigChanges(); //feb 17
   }
 
   function handleDelete() {
@@ -331,7 +545,7 @@ export function MapBuilder() {
   }
 
   const handleItemChangeTitle = (index: any, event: any) => {
-    aoiModified.current = 1; 
+    aoiModified.current = 1;
     const newItems = [...aoiRecord];
     aoiRecord[index].title = event.target.value;
     setAoiRecord(newItems);
@@ -339,7 +553,7 @@ export function MapBuilder() {
   };
 
   const handleItemChangeUrl = (index: any, event: any) => { //verify that image insists
-    aoiModified.current = 1; 
+    aoiModified.current = 1;
     let imageError = false;
     var image = new Image();
     image.src = event.target.value;
@@ -363,7 +577,7 @@ export function MapBuilder() {
   };
 
   const handleItemChangeExtent = (index: number, event: any) => {
-    aoiModified.current = 1; 
+    aoiModified.current = 1;
     setExtentValue(event.target.value);
     setAoiRecordIndex(index);
     aoiRecord[index].extent = event.target.value;  
@@ -423,7 +637,7 @@ export function MapBuilder() {
       <ConfigSaveUploadButtons  />
       <FormControl component="fieldset" sx={{ mt: 1, gap: 3 ,align:"center"}}>
 
-    <FormGroup aria-label="position">
+     <FormGroup aria-label="position">
 
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
 
@@ -448,20 +662,20 @@ export function MapBuilder() {
     </Box>
  </FormGroup>
 
-        <SingleSelectComplete
-          options={CONFIG_FILES_LIST}
-          defaultValue={configFilePath}
-          applyGrouping={true}
-          onChange={(value) => {
-             URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`
-             for (let i = 0; i < CONFIG_FILES_LIST.length; i++) {
-                if ((value === CONFIG_FILES_LIST[i].value) && ((CONFIG_FILES_LIST[i].group === 'Layer Types') || (CONFIG_FILES_LIST[i].group === 'Geocore')))
-                   URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/layers/`;
-              }
-              handleConfigFileChange(value); }}
-          label="Select Configuration File" placeholder="" />
+    <SingleSelectComplete
+      options={CONFIG_FILES_LIST}
+      defaultValue={configFilePath}
+      applyGrouping={true}
+      onChange={(value) => {
+      URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/demos/`
+      for (let i = 0; i < CONFIG_FILES_LIST.length; i++) {
+        if ((value === CONFIG_FILES_LIST[i].value) && ((CONFIG_FILES_LIST[i].group === 'Layer Types') || (CONFIG_FILES_LIST[i].group === 'Geocore')))
+              URL_TO_CONFIGS = `${GEOVIEW_CORE_URL}/configs/navigator/layers/`;
+        }
+       handleConfigFileChange(value); }}
+       label="Select Configuration File" placeholder="" />
 
-      <Divider sx={{ my: 1,border: 'none' }}> </Divider>
+    <Divider sx={{ my: 1,border: 'none' }}> </Divider>
 
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'flex-start',textAlign: 'left'}}>
@@ -553,7 +767,6 @@ export function MapBuilder() {
 
       {tabValue === 1 && <Box sx={{  mt: 1, gap: 3,borderBottom: 1, borderColor: 'divider' }} // Layers
       >
-
           <Divider sx={{ my: 2,border: 'none'  }} > Add Geocore File </Divider>
 
           <FormControl> 
@@ -586,7 +799,6 @@ export function MapBuilder() {
           }} >
           ADD
             </Button>
-
              <Box sx={{ p: 2 }}>
                  <Divider sx={{ my: 2,border: 'none'  }} >  Layer Status </Divider>
 
@@ -605,7 +817,7 @@ export function MapBuilder() {
        }
           {tabValue === 2 && <Box sx={{  mt: 1, gap: 3,borderBottom: 1, borderColor: 'divider' }} // User Interface
           >
-          <Divider sx={{ my: 2 }}/> 
+          <Divider sx={{ my: 2 }}/>
 
           <SingleSelectComplete
           options={languageOptions}
@@ -627,7 +839,7 @@ export function MapBuilder() {
                 id="map-width"
                 label="Width"
                 defaultValue={mapWidth.substring(0, mapWidth.length - 2)}  
-                onChange={(event) => { 
+                onChange={(event) => {
                    if (event.target.value.match(/^\d+$/)) {
                      setMapSizeValid(true);
                      setMapWidth(event.target.value + "px");
@@ -673,16 +885,15 @@ export function MapBuilder() {
          <Button 
            style={{ maxWidth: '30px', maxHeight: '40px', minWidth: '40px', minHeight: '40px' }}
            onClick={(event) => {
-          
              if ( mapWidth1.current)  {  // update width text field,mapWidth is a hook and is a update delay
                panelSize.current.toString().includes('.') ?
                  mapWidth1.current!.value =(panelSize.current.toString().substring(0, panelSize.current.toString().indexOf('.')))
                  : mapWidth1.current!.value =(panelSize.current.toString()+"px");
-             }   
+             }
               setMapSizeValid(true)
               setMapWidth(mapWidth1.current!.value);
               setIsModified(true);
-              setTimeout(() => {refAppply.current!.click()}, 1000);  //works with the d
+              setTimeout(() => {refAppply.current!.click()}, 1000);
              }
            }
           variant="contained" color="primary" size="small">
@@ -769,7 +980,28 @@ export function MapBuilder() {
           <FormLabel component="legend">Navigation Bar</FormLabel>
           <PillsAutoComplete
             defaultValue={(getProperty('navBar') !== undefined) ? getProperty('navBar') : ['home', 'basemap-select', 'fullscreen']}  //removed zoom
-            onChange={(value) => updateArrayProperty('navBar', value)}
+            onChange={(value: any, reason: any, selectedvalue: any) => {
+               updateArrayProperty('navBar', value)
+                if((selectedvalue === "drawer") && (reason == "selectOption"))
+              {
+                //have to set color of swiper label or stays displayed even though disabled,unchecked
+                setIsModified(true);
+                drawerRecord.push({ fillColor: "", strokeColor: '', strokeWidth: "", activeGeometry: "",geomTypes:[],hideMeasurements: false,version:"" });
+                displayLayers.current = 1;
+                drawerDisplay.current = 1;
+                setDrawerChecked(true);
+                handlePackageChange('corePackages', value, reason, selectedvalue);
+                forceUpdate;
+              }
+               else if ((selectedvalue === "drawer") && (reason == "removeOption")) {
+                displayLayers.current = 0;
+                drawerDisplay.current = 0;
+                setDrawerChecked(false);
+                setItemColor('white'); //erase switch label
+                forceUpdate;
+                }
+              setIsModified(true);
+            }}
             options={navBarOptions2}
             label="Options" placeholder="" />
         </FormGroup>
@@ -805,12 +1037,11 @@ export function MapBuilder() {
             }
             options={appBarOptions2} label="App-bar Options" placeholder="" />
 
-             <Divider sx={{ my: 2 }}/>
+        <Divider sx={{ my: 2,border: 'none' }}/>
 
         <FormGroup aria-label="Core Packages Options">
           <FormLabel component="legend">Core Packages</FormLabel>
           <PillsAutoComplete
-
             defaultValue={getProperty('corePackages')}
             onChange={(value: any, reason: any, selectedvalue: any) => {
               updateArrayProperty('corePackages', value);
@@ -818,7 +1049,6 @@ export function MapBuilder() {
                 setIsModified(true);
                 displayLayers.current = 1;
                 swiperDisplay.current = 1;
-                console.log("swiper display current is set ");
                 setSwiperChecked(true);
                 createLayerList();
                 handlePackageChange('corePackages', value, reason, selectedvalue);
@@ -830,7 +1060,7 @@ export function MapBuilder() {
                 displayLayers.current = 0;
                 swiperDisplay.current = 0;
                 _.set(configJson, "corePackages", []);
-                setSwiperChecked(false); 
+                setSwiperChecked(false);
                 setIsDisabled(true);
                 const myMap = cgpv.api.getMapViewer(mapId);
                  myMap.plugins['swiper'].deActivateAll();
@@ -845,7 +1075,6 @@ export function MapBuilder() {
             }}
             options={corePackagesOptions}
             label="CorePackages Options" placeholder="" />
-
         </FormGroup>
 
           <Divider sx={{ my: 2 ,border: 'none'}} />
@@ -863,21 +1092,267 @@ export function MapBuilder() {
               updateArrayProperty('footerBar.tabs.core', value);
               setIsModified(true);
             }}
-            options={footerTabsList2} label="Footer Options" placeholder="" />
+            options={footerTabsList2} label="Footer Options" placeholder=""/>
 
         </FormGroup>
         </FormGroup>
        </FormGroup>
 
-       <FormGroup aria-label="Layer List"  >
+       <FormGroup aria-label="Drawer Package"  >
 
+          {drawerDisplay.current === 1 ?
+            <label style={{ color: itemColor ,justifyContent: 'left',
+              alignItems: 'left',}}>
+              Drawer Config
+            </label>
+            : ''}
+
+           {drawerDisplay.current === 1 ?
+            <FormControlLabel id="swiper" sx={{
+              justifyContent: 'flex-end',
+              alignItems: 'baseline',
+              }}
+
+              label=""
+              disabled={isDisabled}
+              control={<Switch checked={drawerChecked} onChange={handleChangeDrawer}
+              sx={{
+                      "& .MuiInputBase-root.Mui-disabled": {
+                    },
+                      "& .MuiFormLabel-root.Mui-disabled": {
+                        color: "rgba(0, 0, 0,0.0)"
+                    },
+                      "&.Mui-disabled": {
+                    },
+                      '& .MuiFormControlLabel-label': {
+                        color: itemColor,
+                    },
+                      '& .css-1nweas-MuiFormControlLabel-root.MuiFormControlLabel-label.Mui-disabled': {
+                        color: 'rgba(0,0,0,0)',
+                    },
+                      '& .MuiFormControlLabel-root': {
+                        color: itemColor,
+                    },          
+                      "&.MuiSwitch-root .MuiSwitch-switchBase": {
+                    },
+                      "& .MuiSwitch-thumb": {
+                        color: itemColor
+                    },
+                      "& .MuiSwitch-track": {  // if dont sepecify is grey
+                         backgroundColor: itemColor// works is white when collapse
+                    },
+                  }}
+                />}
+               labelPlacement="start"/>
+          : ''}
+
+          <Collapse in={drawerChecked}>
+
+            <Divider sx={{ my: 1 ,border:"none"}} /> 
+
+            <Button onClick={(event) => {console.log("in drawer save");handleDrawerSave();}}
+              variant="contained" color="primary" size="small">
+               Save
+            </Button>
+
+            <Divider sx={{ my: 1 ,border:"none"}} /> 
+
+            <Stack  justifyContent="flex-start"  alignItems="flex-start" direction="column"
+              sx={{  display: 'flex', flexDirection: 'column', 
+              justifyContent: 'flex-start' }}
+              spacing={3} >
+
+             <List style={{ flexDirection: "row",
+                            borderCollapse: 'collapse',textAlign: 'left',
+                            justifyContent: 'flex-start' 
+                          }}>
+
+              {drawerRecord.map((item,index) => (
+
+                <ListItem key={index} style={{display: 'flex',flexDirection:'column',justifyContent:'flex-start' }}>
+
+                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', gap: 2 }}>
+                   <FormGroup>
+                      <TextField inputRef={inputRef3} sx={{ 
+                        display: 'flex', flexDirection: 'column', 
+                        justifyContent: 'flex-start', borderStyle: 'solid',
+                        maxHeight: '40px',
+                        minWidth: '240px',
+                        minHeight: '40px'}}
+                        label="Fill Color"
+                        value={item.fillColor}
+                        error={fillColorError}
+                       onChange={(event) => {
+                        drawerModified.current = 1;
+                        displayLayers.current = 1;
+                        handleItemChangeFillColor( event);}} />
+                   </FormGroup>
+
+                   <FormControl>
+                     {isOpen && 
+                      <div className="popover" ref={popover} id="popover">
+                      <Tooltip title="Color picker">
+                      <Button sx={{border:"none" , maxWidth: '40px', maxHeight: '20px', minWidth: '40px', minHeight: '20px'}} 
+                        variant="contained" startIcon={<Palette fontSize="small" sx={{color: 'orange' }} />}
+                         onClick={() =>{
+                           const myElement = document.getElementById('popover2');
+                           myElement!.style.display = 'block';
+                           setDisplayColorPicker1(!displayColorPicker1); }} >
+                      </Button> 
+                      </Tooltip>
+                      </div>
+                     }
+               </FormControl>
+               </Box>
+            <Stack   direction="column" justifyContent="flex-start">
+
+               <HexColorPicker id="popover2" color={color}
+                 onChange={(color) =>{ drawerModified.current = 1;  // color picker hidder
+                   setFillColor(color);
+                   setColor(color);
+                  }}
+                 style={{ display: displayColorPicker1 ?  'flex': 'none'}}/> 
+
+            <Divider sx={{ my: 2 ,border:"none"}} />
+            </Stack>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+              <FormControl>
+                 <TextField inputRef={inputRef4} sx={{ display: 'flex',
+                        flexDirection: 'column', maxHeight: '40px', justifyContent: 'flex-start',
+                        minWidth: '240px',
+                        borderStyle: 'solid'}}
+                        label="Stroke Color"
+                        value={item.strokeColor}
+                        error={strokeColorError}
+                        onChange={(event) => {
+                           displayLayers.current = 1;
+                           drawerModified.current = 1;
+                           handleItemChangeStrokeColor( event);}} />
+                </FormControl>
+
+               <FormControl>
+                   {isOpen2 &&
+                   <div className="popover" ref={popover5} id="popover4">
+                   <Tooltip title="Color picker">
+                   <Button sx={{border:"none" , maxWidth: '40px', maxHeight: '20px', minWidth: '40px', minHeight: '20px'}} 
+                    variant="contained" startIcon={<Palette fontSize="small" sx={{ color: 'orange' }} />}
+                    onClick={() => {
+                         const myElement = document.getElementById('popover3');
+                         myElement!.style.display = 'block';
+                         setDisplayColorPicker2(!displayColorPicker2); }}>
+                   </Button>
+                  </Tooltip>
+                   </div>
+                 }
+               </FormControl>
+            </Box>
+
+            <Stack  direction="column" justifyContent="flex-start">
+              <HexColorPicker id="popover3"  color={color}
+                 onChange={(color) =>{ drawerModified.current = 1;  // color picker hidder
+                   setStrokeColor(color);
+                   setColor(color);
+                  }} 
+                 style={{ display: displayColorPicker2 ?  'flex': 'none'}}/> 
+              <Divider sx={{ my: 2 ,border:"none"}} /> 
+             </Stack>
+                <FormControl>
+                  <TextField sx={{ display: 'flex', flexDirection: 'column', maxHeight:'40px', minWidth: '300px',minHeight: '40px'}}
+                    label="Stroke Width"
+                    value={item.strokeWidth}
+                    error={strokeWidthError}
+                    onChange={(event) => handleItemChangeStrokeWidth(index, event)} />
+                 </FormControl>
+          <FormControl component="fieldset" sx={{ mt: 1, gap: 1}}>
+
+          <Divider sx={{ my: 1,border:"none"}} /> 
+            <FormGroup aria-label="Hide Measurements"
+                sx={{  display: 'flex', flexDirection: 'column', maxHeight:'40px', 
+                        minWidth: '300px',minHeight: '40px',
+                   }}>
+              <SingleSelectComplete
+                options={drawerHideMeasurements}
+                defaultValue={Boolean(getProperty('corePackagesConfig[0].drawer.hideMeasurements')) ? 'true':'false' }
+                onChange={(value) => {
+                 displayLayers.current = 1;
+                 drawerModified.current = 1;
+                 updateProperty('corePackagesConfig[0].drawer.hideMeasurements', JSON.parse(value)); 
+                 setIsModified(true);
+                 }}
+                label="Hide Measurements" placeholder="" />
+             </FormGroup>
+             </FormControl>
+          <FormGroup aria-label="" sx={{ display: 'flex', flexDirection: 'column', maxHeight:'40px',  minWidth: '300px', minHeight: '40px'}}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+
+             <FormControl component="fieldset" sx={{ mt: 2, gap: 1}}>
+               <FormGroup aria-label="Active Geometry" sx={{display:'flex',flexDirection:'column',maxHeight:'40px'
+                                                        ,minWidth:'300px',minHeight:'40px' }}>
+                <SingleSelectComplete
+                  options={DrawerPackageActiveGeometry}
+                  defaultValue={getProperty('corePackagesConfig[0].drawer.activeGeom')}
+                  onChange={(value) => {
+                    displayLayers.current = 1;
+                    drawerModified.current = 1;
+                    updateProperty('corePackagesConfig[0].drawer.activeGeom',value);
+                    setIsModified(true);
+                  }}
+                  label="Active Geometry" placeholder="" />
+                </FormGroup>
+             </FormControl>
+            </Box>
+
+          </FormGroup>
+
+          <Divider sx={{ my: 2 ,border:"none"}} />  
+
+          <FormGroup aria-label="Geom Types" sx={{display:'flex',flexDirection: 'column',maxHeight:'40px',minWidth:'300px', minHeight:'40px' }}>
+            <PillsAutoComplete
+              defaultValue={(getProperty('corePackagesConfig[0].drawer.geomTypes') )} 
+              onChange={(value) => {
+                displayLayers.current = 1;
+                drawerModified.current = 1;
+                updateArrayProperty('corePackagesConfig[0].drawer.geomTypes', value); 
+                setIsModified(true);}}
+              options={ DrawerPackageGeometryTypes}
+              label="Geometry Types" placeholder="" />
+           </FormGroup>
+
+            <FormGroup aria-label="" sx={{ display: 'flex', flexDirection: 'column', maxHeight:'40px',  minWidth: '300px', minHeight: '40px'}}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+             <FormControl component="fieldset" sx={{ mt: 8, gap: 10}}>
+
+               <FormGroup aria-label="Vesrion" sx={{display:'flex',flexDirection:'column',maxHeight:'40px',minWidth:'300px',minHeight:'40px' }}>
+                <SingleSelectComplete
+                  options={DrawerPackageVersion}
+                  defaultValue={getProperty('corePackagesConfig[0].drawer.version')}
+                  onChange={(value) => {
+                    displayLayers.current = 1;
+                    drawerModified.current = 1;
+                    updateProperty('corePackagesConfig[0].drawer.version',value);
+                    setIsModified(true);
+                  }}
+                  label="Version" placeholder="" />
+                </FormGroup>
+             </FormControl>
+            </Box>
+          </FormGroup>
+           <br></br>
+          </ListItem>
+          ))}
+         </List>
+       </Stack>
+      </Collapse>
+    </FormGroup>
+
+       <FormGroup aria-label="Layer List"  >
+          <Divider sx={{ my: 3,border:"none"}} />
           {swiperDisplay.current === 1 ?
             <label style={{ color: itemColor ,justifyContent: 'left',
               alignItems: 'left',}}>
             Swiper Config
             </label>
             : ''}
-
            {swiperDisplay.current === 1 ?
 
            <Tooltip title="Click to expand/hide Swiper records">
@@ -972,15 +1447,18 @@ export function MapBuilder() {
             </Collapse>
         </FormGroup>
         <FormGroup aria-label="Layer List"  >
+
+        <Divider sx={{ my: 2 ,border:"none"}} />
+
         {aoiDisplay.current === 2 ? 
           <label style={{ color: itemColor ,justifyContent: 'left',
               alignItems: 'left',}} >
             Aoi Config
             </label>
             : ''}
- 
+
          {aoiDisplay.current === 2 ? 
-   
+
           <Tooltip title="Click to expand/hide Aoi records">
             <FormControlLabel  sx={{
               justifyContent: 'flex-end', color: itemColor,
@@ -1018,8 +1496,7 @@ export function MapBuilder() {
                         backgroundColor: itemColor // Example: Orange color when checked
                     }
                   }}/> 
-           
-              }       
+              }
               labelPlacement="start"/></Tooltip>
             : ''}
 
@@ -1058,6 +1535,7 @@ export function MapBuilder() {
                 Create extent
               </Button>
               </Tooltip>
+              
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, border: "1px solid #e1e1e1",
                 overflow: 'auto', '&::-webkit-scrollbar': { width : 50 }
              }}>
@@ -1105,20 +1583,15 @@ export function MapBuilder() {
                          error={extentError}
                          onKeyDown={handleKeyDownExtent}  // called when return key is pressed
                          onChange={(event) => handleItemChangeExtent(index, event)}/>
-
                        <br></br>
                      </ListItem>
-
                      ))}
                 </List>
               </Stack>
             </Box>
-
           <Divider sx={{ my: 2 }} />
-
           </Collapse>
-              
-          </FormGroup>
+         </FormGroup>
         </Box>}
       </Box>
     </FormControl>

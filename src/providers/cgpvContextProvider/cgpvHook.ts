@@ -56,8 +56,11 @@ export function useCgpvHook(): ICgpvHook {
       myMap.layer.legendsLayerSet.onLayerSetUpdated((sender: any, payload: any) => {
       const { resultSet } = payload;
       const resultArr: LegendLayerStatus[] = Object.keys(resultSet).map((key) => {
-        return { layerName: resultSet[key]?.layerName, status: resultSet[key]?.layerStatus };
+        const LayerPathSet = myMap.layer.getLayerEntryConfig(resultSet[key]?.layerPath);
+        return { layerName: LayerPathSet.layerEntryProps.geoviewLayerConfig.geoviewLayerName+"/"+ resultSet[key]?.layerPath, status: resultSet[key]?.layerStatus };
       });
+
+
       setLegendLayerStatusList(resultArr);
     });
 

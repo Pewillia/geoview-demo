@@ -48,7 +48,6 @@ function GeoViewMap(props: GeoViewMapProps) {
 
   const handlePanel1Resize = (size : any) => {  //called on right panel resize always called on resize
     panelSize.current = (window.innerWidth - (435 +7))* (size*.01);
-    console.log("right panel resize");
   };
 
   useEffect(() => {

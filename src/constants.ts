@@ -19,7 +19,12 @@ export const DEFAULT_LEFT_PANEL_WIDTH =  20 ;
 export const DEFAULT_RIGHT_PANEL_MIN_WIDTH =  50 ;
 export const DEFAULT_RIGHT_PANEL_MAX_WIDTH =  71 ;
 export const DEFAULT_RIGHT_PANEL_WIDTH =  71 ;
-export const currentTab= {current: 0};
+export const drawerModified = { current: 0 };
+export const drawerDisplay = { current: 0 };
+export const currentTab= {current: 0 };
+export const colorClickedOutside= { current: false };
+export const colorClickedOutside2= { current: false };
+
 
 export const DEFAULT_CONFIG = {
   map: {
@@ -165,14 +170,8 @@ export const appBarOptions: ListOptionType[] = [
 ];
 
 export const appBarOptions2: ListOptionType[] = [
-  { title: 'Area-of-Interest', value: 'aoi-panel' },
-  { title: 'Legend', value: 'legend', group:"1" },
-  { title: 'Layers', value: 'layers', group:"1" },
-  { title: 'Details', value: 'details', group:"1" },
-  { title: 'Data Table', value: 'data-table', group:"1" },
-  { title: 'Geolocator', value: 'geolocator', group:"1" },
-  { title: 'Export', value: 'export', group:"1"}
-]
+  { title: 'Area-of-Interest', value: 'aoi-panel' }
+];
 
 export const navBarOptions: ListOptionType[] = [
   { title: 'Zoom', value: 'zoom' },
@@ -183,12 +182,7 @@ export const navBarOptions: ListOptionType[] = [
 ];
 
 export const navBarOptions2: ListOptionType[] = [
-  { title: 'Draw', value:'draw' },
-  { title: 'Zoom', value: 'zoom' , group:"1"},
-  { title: 'Fullscreen', value: 'fullscreen', group:"1" },
-  { title: 'Home', value: 'home' , group:"1"},
-  { title: 'Location', value: 'location', group:"1" },
-  { title: 'Basemap Select', value: 'basemap-select', group:"1" }
+  { title: 'Draw', value:'drawer' },
 ];
 
 export const themeOptions: ListOptionType[] = [
@@ -204,6 +198,35 @@ export const languageOptions: ListOptionType[] = [
 
 export const corePackagesOptions: ListOptionType[] = [
   { title: 'Swiper', value: 'swiper' },
+];
+
+export const DrawerPackageActiveGeometry: ListOptionType[] = [
+  { title: 'Point', value: 'Point' },
+  { title: 'Text', value: 'Text' },
+  { title: 'LineString', value: 'LineString' },
+  { title: 'Polygon', value: 'Polygon' },
+  { title: 'Rectangle', value: 'Rectangle' },
+  { title: 'Circle', value: 'Circle' },
+  { title: 'Star', value: 'Star' }
+];
+
+export const DrawerPackageGeometryTypes: ListOptionType[] = [
+  { title: 'Point', value: 'Point' },
+  { title: 'Text', value: 'Text' },
+  { title: 'LineString', value: 'LineString' },
+  { title: 'Polygon', value: 'Polygon' },
+  { title: 'Rectangle', value: 'Rectangle' },
+  { title: 'Circle', value: 'Circle' },
+  { title: 'Star', value: 'Star' }
+];
+
+export const drawerHideMeasurements: ListOptionType[] = [
+  { title: 'True', value: 'true' },
+  { title: 'False', value: 'false'}
+];
+
+export const DrawerPackageVersion: ListOptionType[] = [
+  { title: '1.0', value: "1.0" }
 ];
 
 export const CorePackagesConfig: ListOptionType[] = [
